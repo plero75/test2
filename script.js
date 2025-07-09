@@ -40,7 +40,11 @@ async function loadStatic() {
       fetch("./static/gtfs-firstlast.json").then((r) => r.ok ? r.json() : {}),
     ]);
     Object.assign(cache, { stops, firstLast, lastFetch: Date.now() });
-    localStorage.setItem("dashStatic", JSON.stringify(cache));
+    try {
+      localStorage.setItem("dashStatic", JSON.stringify(cache));
+    } catch (err) {
+      console.warn("Stockage local impossible (quota ?)", err);
+    }
   } catch (e) {
     console.warn("Static GTFS indisponible :", e);
   }
