@@ -1,4 +1,4 @@
-// script.js — version mise à jour avec structure complète PRIM et proxy
+// script.js — version mise à jour avec structure complète PRIM et proxy — uniquement pour RER (gares desservies)
 
 import { CONFIG } from './config.js';
 
@@ -138,7 +138,7 @@ async function horaire(id, stop, title) {
       horairesHTML += `<h3>Vers ${dest} – dans ${timeToExpMin} min (à ${timeStr})</h3>`;
 
       const journeyRaw = first.MonitoredVehicleJourney?.FramedVehicleJourneyRef?.DatedVehicleJourneyRef;
-      const match = journeyRaw?.match(/local-.*$/);
+      const match = journeyRaw?.match(/local-[^:]+/);
       if (id === "rer" && match) {
         const journey = `vehicle_journey:IDFM:stif:${match[0]}`;
         const scrollerId = `${id}-${journey.replace(/[^a-zA-Z0-9]/g, '')}`;
