@@ -1,4 +1,4 @@
-// script.js — version corrigée avec météo, actus, horaires RER/Bus et alertes
+// script.js — version mise à jour avec structure complète PRIM et proxy
 
 import { CONFIG } from './config.js';
 
@@ -13,8 +13,6 @@ document.addEventListener("DOMContentLoaded", () => {
   setInterval(loop, 60_000);
   startWeatherLoop();
   startNewsLoop();
-  // afficherProchaineCourseVincennes(); ← À commenter ou définir
-  // afficherToutesCoursesVincennes(); ← À commenter ou définir
 });
 
 function loop() {
@@ -23,14 +21,16 @@ function loop() {
 }
 
 function clock() {
-  document.getElementById("datetime").textContent =
-    new Date().toLocaleString("fr-FR", {
+  const el = document.getElementById("datetime");
+  if (el) {
+    el.textContent = new Date().toLocaleString("fr-FR", {
       weekday: "short",
       day: "2-digit",
       month: "2-digit",
       hour: "2-digit",
       minute: "2-digit"
     });
+  }
 }
 
 function fetchAll() {
@@ -48,6 +48,7 @@ async function meteo() {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
     const data = await fetch(url).then(r => r.json());
     const el = document.getElementById("weather");
+    if (!el) return;
     if (data?.current_weather) {
       const w = data.current_weather;
       el.innerHTML = `🌤 ${w.temperature}°C – Vent ${w.windspeed} km/h`;
@@ -85,6 +86,7 @@ function startNewsLoop() {
 
 function afficherNews() {
   const el = document.getElementById("news-banner-content");
+  if (!el) return;
   if (!newsItems.length) {
     el.textContent = "Aucune actu disponible";
     return;
@@ -104,17 +106,17 @@ async function horaire(id, stop, title) {
   const lineRef = stop?.lineRef;
 
   if (!monitoringRef) {
-    scheduleEl.innerHTML = "Donnée stop manquante";
+    if (scheduleEl) scheduleEl.innerHTML = "Donnée stop manquante";
     return;
   }
 
   try {
-    const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/v2/navitia/stop-monitoring?MonitoringRef=${monitoringRef}`);
+    const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=STIF:StopArea:SP:${monitoringRef}:`);
     const data = await fetch(url).then(r => r.json());
     const visits = data?.Siri?.ServiceDelivery?.StopMonitoringDelivery?.[0]?.MonitoredStopVisit || [];
 
     if (!visits.length) {
-      scheduleEl.innerHTML = "Aucun passage prévu pour l’instant";
+      if (scheduleEl) scheduleEl.innerHTML = "Aucun passage prévu pour l’instant";
       return;
     }
 
@@ -137,8 +139,8 @@ async function horaire(id, stop, title) {
       horairesHTML += `<h3>Vers ${dest} – dans ${timeToExpMin} min (à ${timeStr})</h3>`;
 
       const journey = first.MonitoredVehicleJourney?.FramedVehicleJourneyRef?.DatedVehicleJourneyRef;
-      if (id === "rer" && journey) {
-        const scrollerId = `${id}-${journey}`;
+      if (id === "rer" && journey && journey.startsWith("RATP-SIV:VehicleJourney::")) {
+        const scrollerId = `${id}-${journey.replace(/[^a-zA-Z0-9]/g, '')}`;
         horairesHTML += `<div id="gares-${scrollerId}" class="stops-scroll" style="margin-bottom:8px;">🚉 …</div>`;
         loadStops(journey, scrollerId);
       }
@@ -179,22 +181,22 @@ async function horaire(id, stop, title) {
       if (alert) horairesHTML += `<div class="info">⚠️ ${alert}</div>`;
     }
 
-    scheduleEl.innerHTML = horairesHTML;
+    if (scheduleEl) scheduleEl.innerHTML = horairesHTML;
   } catch (e) {
     console.error("Erreur dans horaire():", e);
-    scheduleEl.innerHTML = "Erreur horaire";
+    if (scheduleEl) scheduleEl.innerHTML = "Erreur horaire";
   }
 }
 
 async function lineAlert(lineRef) {
   if (!lineRef) return "";
   try {
-    const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/v2/navitia/general-message?LineRef=${lineRef}`);
+    const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/v2/navitia/line_reports/lines/${lineRef.replace('STIF:Line::', 'line:IDFM:')}`);
     const res = await fetch(url);
     if (!res.ok) return "";
     const data = await res.json();
-    const messages = data?.Siri?.ServiceDelivery?.GeneralMessageDelivery?.[0]?.InfoMessage || [];
-    const msg = messages[0]?.Content?.MessageText || messages[0]?.Message || "";
+    const reports = data?.line_reports;
+    const msg = reports?.[0]?.message?.text || "";
     return msg ? `⚠️ ${msg}` : "";
   } catch (e) {
     console.error("Erreur lineAlert:", e);
