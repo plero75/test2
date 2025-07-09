@@ -1,3 +1,5 @@
+// script.js — version corrigée avec météo, actus, horaires RER/Bus et alertes
+
 import { CONFIG } from './config.js';
 
 const proxy = CONFIG.proxy;
@@ -10,6 +12,7 @@ const lineMap = {
 let newsItems = [];
 let newsIndex = 0;
 
+// Boucles initiales
 document.addEventListener("DOMContentLoaded", () => {
   loop();
   setInterval(loop, 60_000);
@@ -26,7 +29,13 @@ function loop() {
 
 function clock() {
   document.getElementById("datetime").textContent =
-    new Date().toLocaleString("fr-FR", { weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+    new Date().toLocaleString("fr-FR", {
+      weekday: "short",
+      day: "2-digit",
+      month: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
 }
 
 function fetchAll() {
@@ -37,49 +46,27 @@ function fetchAll() {
   news();
 }
 
-function startWeatherLoop() {
-  meteo();
-  setInterval(meteo, 15 * 60 * 1000); // toutes les 15 min
-}
-
 async function meteo() {
-  const meteoEl = document.getElementById("meteo");
   try {
-    const url = "https://api.open-meteo.com/v1/forecast?latitude=48.821&longitude=2.452&current_weather=true";
-    const res = await fetch(url);
-    const data = await res.json();
-    const weather = data.current_weather;
-
-    if (!weather) {
-      meteoEl.textContent = "🌤 Météo indisponible";
-      return;
+    const lat = CONFIG.weather.lat;
+    const lon = CONFIG.weather.lon;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
+    const data = await fetch(url).then(r => r.json());
+    const el = document.getElementById("weather");
+    if (data?.current_weather) {
+      const w = data.current_weather;
+      el.innerHTML = `🌤 ${w.temperature}°C – Vent ${w.windspeed} km/h`;
+    } else {
+      el.textContent = "Météo indisponible";
     }
-
-    const temp = Math.round(weather.temperature);
-    const wind = Math.round(weather.windspeed);
-    const code = weather.weathercode;
-    const icon = getWeatherIcon(code);
-
-    meteoEl.innerHTML = `${icon} ${temp}°C, vent ${wind} km/h`;
   } catch (e) {
-    meteoEl.textContent = "🌤 Météo indisponible";
-    console.error("Erreur météo :", e);
+    console.error("Météo erreur:", e);
   }
 }
 
-function getWeatherIcon(code) {
-  if ([0].includes(code)) return "☀️";
-  if ([1, 2, 3].includes(code)) return "⛅️";
-  if ([45, 48].includes(code)) return "🌫";
-  if ([51, 53, 55, 61, 63, 65, 80, 81, 82].includes(code)) return "🌧";
-  if ([71, 73, 75, 85, 86].includes(code)) return "❄️";
-  if ([95, 96, 99].includes(code)) return "⛈";
-  return "🌡";
-}
-
-function startNewsLoop() {
-  news();
-  setInterval(news, 10 * 60 * 1000);
+function startWeatherLoop() {
+  meteo();
+  setInterval(meteo, 10 * 60 * 1000);
 }
 
 async function news() {
@@ -90,10 +77,15 @@ async function news() {
     newsItems = data.items || [];
     newsIndex = 0;
     afficherNews();
-    setInterval(afficherNews, 15000);
   } catch (e) {
-    console.error("Erreur actus :", e);
+    console.error("Erreur actus:", e);
   }
+}
+
+function startNewsLoop() {
+  news();
+  setInterval(afficherNews, 15000);
+  setInterval(news, 10 * 60 * 1000);
 }
 
 function afficherNews() {
@@ -107,6 +99,10 @@ function afficherNews() {
   newsIndex = (newsIndex + 1) % newsItems.length;
 }
 
+function createHorizontalScroller(stops) {
+  return `<div class="stops-scroll">🚏 ${stops.map(s => `<span>${s}</span>`).join('➔')}</div>`;
+}
+
 async function horaire(id, stop, title) {
   const scheduleEl = document.getElementById(`${id}-schedules`);
   try {
@@ -114,7 +110,6 @@ async function horaire(id, stop, title) {
     const data = await fetch(url).then(r => r.json());
     const visits = data.Siri.ServiceDelivery.StopMonitoringDelivery[0]?.MonitoredStopVisit || [];
 
-    let horairesHTML = "";
     if (!visits.length) {
       scheduleEl.innerHTML = "Aucun passage prévu pour l’instant";
       return;
@@ -128,6 +123,7 @@ async function horaire(id, stop, title) {
       passagesByDest[dest].push(v);
     }
 
+    let horairesHTML = "";
     for (const [dest, passages] of Object.entries(passagesByDest)) {
       const first = passages[0];
       const callFirst = first.MonitoredVehicleJourney.MonitoredCall;
@@ -135,8 +131,7 @@ async function horaire(id, stop, title) {
       const now = new Date();
       const timeToExpMin = Math.max(0, Math.round((expFirst - now) / 60000));
       const timeStr = expFirst.toLocaleTimeString("fr-FR", { hour: '2-digit', minute: '2-digit' });
-
-      horairesHTML += `<h3>Vers ${dest} – prochain départ dans : ${timeToExpMin} min (à ${timeStr})</h3>`;
+      horairesHTML += `<h3>Vers ${dest} – dans ${timeToExpMin} min (à ${timeStr})</h3>`;
 
       const journey = first.MonitoredVehicleJourney?.FramedVehicleJourneyRef?.DatedVehicleJourneyRef;
       if (id === "rer" && journey) {
@@ -169,11 +164,11 @@ async function horaire(id, stop, title) {
         if (/at stop|stopped/i.test(status) && id.startsWith("bus")) tag = "🚌 À l'arrêt";
 
         if (cancel) {
-          horairesHTML += `❌ <s>${aimedStr} → ${dest}</s> train supprimé<br>`;
+          horairesHTML += `❌ <s>${aimedStr} → ${dest}</s> supprimé<br>`;
         } else if (late) {
-          horairesHTML += `🕒 <s>${aimedStr}</s> → ${expStr} (+${diff} min) → ${dest} ${crowd} <b>${tag}</b> (dans ${timeToExpMin} min)<br>`;
+          horairesHTML += `🕒 <s>${aimedStr}</s> → ${expStr} (+${diff} min) ${crowd} <b>${tag}</b><br>`;
         } else {
-          horairesHTML += `🕒 ${expStr} → ${dest} ${crowd} <b>${tag}</b> (dans ${timeToExpMin} min)<br>`;
+          horairesHTML += `🕒 ${expStr} → ${dest} ${crowd} <b>${tag}</b><br>`;
         }
       }
 
@@ -182,9 +177,8 @@ async function horaire(id, stop, title) {
     }
 
     scheduleEl.innerHTML = horairesHTML;
-  } catch (e) {
+  } catch {
     scheduleEl.innerHTML = "Erreur horaire";
-    console.error(e);
   }
 }
 
@@ -194,9 +188,9 @@ async function loadStops(journey, targetId) {
     const data = await fetch(url).then(r => r.ok ? r.json() : null);
     const list = data?.vehicle_journeys?.[0]?.stop_times?.map(s => s.stop_point.name);
     const div = document.getElementById(`gares-${targetId}`);
-    if (div) div.innerHTML = list && list.length > 0 ? createHorizontalScroller(list) : "";
+    if (div && list?.length) div.innerHTML = createHorizontalScroller(list);
   } catch (e) {
-    console.error("Erreur chargement stops :", e);
+    console.error("Erreur chargement stops:", e);
   }
 }
 
@@ -216,6 +210,3 @@ async function lineAlert(stop) {
   }
 }
 
-function createHorizontalScroller(stops) {
-  return `<div class="stops-scroll">🚏 ${stops.map(s => `<span>${s}</span>`).join(' ➔ ')}</div>`;
-}
