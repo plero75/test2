@@ -109,7 +109,7 @@ async function horaire(id, stop, title) {
   }
 
   try {
-    const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=${monitoringRef}`);
+    const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/v2/navitia/stop-monitoring?MonitoringRef=${monitoringRef}`);
     const data = await fetch(url).then(r => r.json());
     const visits = data?.Siri?.ServiceDelivery?.StopMonitoringDelivery?.[0]?.MonitoredStopVisit || [];
 
@@ -189,7 +189,7 @@ async function horaire(id, stop, title) {
 async function lineAlert(lineRef) {
   if (!lineRef) return "";
   try {
-    const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/general-message?LineRef=${lineRef}`);
+    const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/v2/navitia/general-message?LineRef=${lineRef}`);
     const res = await fetch(url);
     if (!res.ok) return "";
     const data = await res.json();
@@ -204,7 +204,7 @@ async function lineAlert(lineRef) {
 
 async function loadStops(journey, targetId) {
   try {
-    const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/vehicle_journeys/${journey}`);
+    const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/v2/navitia/vehicle_journeys/${journey}`);
     const data = await fetch(url).then(r => r.ok ? r.json() : null);
     const list = data?.vehicle_journeys?.[0]?.stop_times?.map(s => s.stop_point.name);
     const div = document.getElementById(`gares-${targetId}`);
