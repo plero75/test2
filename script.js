@@ -111,8 +111,9 @@ async function horaire(id, stop, title) {
       horairesHTML += `<h3>Vers ${dest} – prochain départ dans : ${timeToExpMin} min (à ${timeStr})</h3>`;
 
       // -------- Affichage des arrêts desservis : une seule fois par destination, juste sous le titre
-      if (callFirst && first.MonitoredVehicleJourney?.VehicleJourneyRef) {
-        const journey = first.MonitoredVehicleJourney.VehicleJourneyRef;
+      const journey = first.MonitoredVehicleJourney?.VehicleJourneyRef
+        || first.MonitoredVehicleJourney?.FramedVehicleJourneyRef?.DatedVehicleJourneyRef;
+      if (callFirst && journey) {
         horairesHTML += `<div id="gares-${id}-${journey}" class="stops-scroll" style="margin-bottom:8px;">🚉 …</div>`;
         loadStops(journey, `${id}-${journey}`);
       }
