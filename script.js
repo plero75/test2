@@ -3,11 +3,6 @@
 import { CONFIG } from './config.js';
 
 const proxy = CONFIG.proxy;
-const lineMap = {
-  "STIF:StopArea:SP:43135:": "STIF:Line::C01742:",
-  "STIF:StopArea:SP:463641:": "STIF:Line::C01789:",
-  "STIF:StopArea:SP:463644:": "STIF:Line::C01805:",
-};
 
 let newsItems = [];
 let newsIndex = 0;
@@ -106,7 +101,7 @@ function createHorizontalScroller(stops) {
 async function horaire(id, stop, title) {
   const scheduleEl = document.getElementById(`${id}-schedules`);
   try {
-    const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=${stop}`);
+    const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=${stop.monitoringRef}`);
     const data = await fetch(url).then(r => r.json());
     const visits = data.Siri.ServiceDelivery.StopMonitoringDelivery[0]?.MonitoredStopVisit || [];
 
@@ -172,7 +167,7 @@ async function horaire(id, stop, title) {
         }
       }
 
-      const alert = await lineAlert(stop);
+      const alert = await lineAlert(stop.lineRef);
       if (alert) horairesHTML += `<div class="info">⚠️ ${alert}</div>`;
     }
 
@@ -194,11 +189,10 @@ async function loadStops(journey, targetId) {
   }
 }
 
-async function lineAlert(stop) {
-  const line = lineMap[stop];
-  if (!line) return "";
+async function lineAlert(lineRef) {
+  if (!lineRef) return "";
   try {
-    const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/general-message?LineRef=${line}`);
+    const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/general-message?LineRef=${lineRef}`);
     const res = await fetch(url);
     if (!res.ok) return "";
     const data = await res.json();
@@ -209,4 +203,3 @@ async function lineAlert(stop) {
     return "";
   }
 }
-
