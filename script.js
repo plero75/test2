@@ -189,30 +189,33 @@ async function horaire(id, stop, title) {
   }
 }
 
+async function lineAlert(lineRef) {
+  if (!lineRef) return "";
+  try {
+    const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/general-message?LineRef=${lineRef}`);
+    const res = await fetch(url);
+    if (!res.ok) return "";
+    const data = await res.json();
+    const messages = data?.Siri?.ServiceDelivery?.GeneralMessageDelivery?.[0]?.InfoMessage || [];
+    const msg = messages[0]?.Content?.MessageText || messages[0]?.Message || "";
+    return msg ? `⚠️ ${msg}` : "";
+  } catch (e) {
+    console.error("Erreur lineAlert:", e);
+    return "";
+  }
+}
 
-  async function loadStops(journey, targetId) {
-    try {
-      const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/vehicle_journeys/${journey}`);
-      const data = await fetch(url).then(r => r.ok ? r.json() : null);
-      const list = data?.vehicle_journeys?.[0]?.stop_times?.map(s => s.stop_point.name);
-      const div = document.getElementById(`gares-${targetId}`);
-      if (div && list?.length) div.innerHTML = createHorizontalScroller(list);
-    } catch (e) {
-      console.error("Erreur chargement stops:", e);
-    }
+
+
+
+async function loadStops(journey, targetId) {
+  try {
+    const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/vehicle_journeys/${journey}`);
+    const data = await fetch(url).then(r => r.ok ? r.json() : null);
+    const list = data?.vehicle_journeys?.[0]?.stop_times?.map(s => s.stop_point.name);
+    const div = document.getElementById(`gares-${targetId}`);
+    if (div && list?.length) div.innerHTML = createHorizontalScroller(list);
+  } catch (e) {
+    console.error("Erreur chargement stops:", e);
   }
-  
-  async function lineAlert(lineRef) {
-    if (!lineRef) return "";
-    try {
-      const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/general-message?LineRef=${lineRef}`);
-      const res = await fetch(url);
-      if (!res.ok) return "";
-      const data = await res.json();
-      const messages = data?.Siri?.ServiceDelivery?.GeneralMessageDelivery?.[0]?.InfoMessage || [];
-      const msg = messages[0]?.Content?.MessageText || messages[0]?.Message || "";
-      return msg ? `⚠️ ${msg}` : "";
-    } catch {
-      return "";
-    }
-  }
+}
