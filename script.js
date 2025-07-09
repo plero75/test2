@@ -115,6 +115,16 @@ async function horaire(id, stop, title) {
     scheduleEl.innerHTML = "Erreur horaire";
   }
 }
+function afficherNews() {
+  const el = document.getElementById("news-banner-content");
+  if (!newsItems.length) {
+    el.textContent = "Aucune actu disponible";
+    return;
+  }
+  const article = newsItems[newsIndex];
+  el.innerHTML = `<b>${article.title}</b> – ${article.description}`;
+  newsIndex = (newsIndex + 1) % newsItems.length;
+}
 
 async function loadStops(journey, targetId) {
   try {
