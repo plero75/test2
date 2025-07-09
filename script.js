@@ -7,8 +7,11 @@ const lineMap = {
   "STIF:StopArea:SP:463644:": "STIF:Line::C01805:",
 };
 
+let newsItems = [];
+let newsIndex = 0;
+
 document.addEventListener("DOMContentLoaded", () => {
-   loop();
+  loop();
   setInterval(loop, 60_000);
   startWeatherLoop();
   startNewsLoop();
@@ -19,33 +22,6 @@ document.addEventListener("DOMContentLoaded", () => {
 function loop() {
   clock();
   fetchAll();
-}
-let newsItems = [];
-let newsIndex = 0;
-
-async function news() {
-  try {
-    const res = await fetch(CONFIG.newsUrl);
-    if (!res.ok) return;
-    const text = await res.text();
-    const parser = new DOMParser();
-    const xml = parser.parseFromString(text, "application/xml");
-    const items = Array.from(xml.querySelectorAll("item"));
-    newsItems = items.map(item => ({
-      title: item.querySelector("title")?.textContent || "Sans titre",
-      description: item.querySelector("description")?.textContent || ""
-    }));
-    newsIndex = 0;
-    afficherNews();
-    setInterval(afficherNews, 15000); // toutes les 15 secondes
-  } catch (e) {
-    console.error("Erreur actus :", e);
-  }
-}
-
-function startNewsLoop() {
-  news();
-  setInterval(news, 10 * 60 * 1000); // met à jour toutes les 10 minutes
 }
 
 function clock() {
@@ -61,13 +37,78 @@ function fetchAll() {
   news();
 }
 
-function createHorizontalScroller(stops) {
-  return `<div class="stops-scroll">🚏 ${stops.map(s => `<span>${s}</span>`).join('➔')}</div>`;
+function startWeatherLoop() {
+  meteo();
+  setInterval(meteo, 15 * 60 * 1000); // toutes les 15 min
+}
+
+async function meteo() {
+  const meteoEl = document.getElementById("meteo");
+  try {
+    const url = "https://api.open-meteo.com/v1/forecast?latitude=48.821&longitude=2.452&current_weather=true";
+    const res = await fetch(url);
+    const data = await res.json();
+    const weather = data.current_weather;
+
+    if (!weather) {
+      meteoEl.textContent = "🌤 Météo indisponible";
+      return;
+    }
+
+    const temp = Math.round(weather.temperature);
+    const wind = Math.round(weather.windspeed);
+    const code = weather.weathercode;
+    const icon = getWeatherIcon(code);
+
+    meteoEl.innerHTML = `${icon} ${temp}°C, vent ${wind} km/h`;
+  } catch (e) {
+    meteoEl.textContent = "🌤 Météo indisponible";
+    console.error("Erreur météo :", e);
+  }
+}
+
+function getWeatherIcon(code) {
+  if ([0].includes(code)) return "☀️";
+  if ([1, 2, 3].includes(code)) return "⛅️";
+  if ([45, 48].includes(code)) return "🌫";
+  if ([51, 53, 55, 61, 63, 65, 80, 81, 82].includes(code)) return "🌧";
+  if ([71, 73, 75, 85, 86].includes(code)) return "❄️";
+  if ([95, 96, 99].includes(code)) return "⛈";
+  return "🌡";
+}
+
+function startNewsLoop() {
+  news();
+  setInterval(news, 10 * 60 * 1000);
+}
+
+async function news() {
+  try {
+    const res = await fetch(CONFIG.newsUrl);
+    if (!res.ok) return;
+    const data = await res.json();
+    newsItems = data.items || [];
+    newsIndex = 0;
+    afficherNews();
+    setInterval(afficherNews, 15000);
+  } catch (e) {
+    console.error("Erreur actus :", e);
+  }
+}
+
+function afficherNews() {
+  const el = document.getElementById("news-banner-content");
+  if (!newsItems.length) {
+    el.textContent = "Aucune actu disponible";
+    return;
+  }
+  const article = newsItems[newsIndex];
+  el.innerHTML = `<b>${article.title}</b> – ${article.description}`;
+  newsIndex = (newsIndex + 1) % newsItems.length;
 }
 
 async function horaire(id, stop, title) {
   const scheduleEl = document.getElementById(`${id}-schedules`);
-  const alertEl = document.getElementById(`${id}-alert`);
   try {
     const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=${stop}`);
     const data = await fetch(url).then(r => r.json());
@@ -92,8 +133,9 @@ async function horaire(id, stop, title) {
       const callFirst = first.MonitoredVehicleJourney.MonitoredCall;
       const expFirst = new Date(callFirst.ExpectedDepartureTime);
       const now = new Date();
-      const timeToExpMin = Math.max(0, Math.round((expFirst - now)/60000));
-      const timeStr = expFirst.toLocaleTimeString("fr-FR",{hour:'2-digit',minute:'2-digit'});
+      const timeToExpMin = Math.max(0, Math.round((expFirst - now) / 60000));
+      const timeStr = expFirst.toLocaleTimeString("fr-FR", { hour: '2-digit', minute: '2-digit' });
+
       horairesHTML += `<h3>Vers ${dest} – prochain départ dans : ${timeToExpMin} min (à ${timeStr})</h3>`;
 
       const journey = first.MonitoredVehicleJourney?.FramedVehicleJourneyRef?.DatedVehicleJourneyRef;
@@ -103,16 +145,16 @@ async function horaire(id, stop, title) {
         loadStops(journey, scrollerId);
       }
 
-      passages.forEach(v => {
+      for (const v of passages) {
         const call = v.MonitoredVehicleJourney.MonitoredCall;
         const aimed = new Date(call.AimedDepartureTime);
         const exp = new Date(call.ExpectedDepartureTime);
         const diff = Math.round((exp - aimed) / 60000);
         const late = diff > 1;
         const cancel = (call.ArrivalStatus || "").toLowerCase() === "cancelled";
-        const aimedStr = aimed.toLocaleTimeString("fr-FR",{hour:'2-digit',minute:'2-digit'});
-        const expStr = exp.toLocaleTimeString("fr-FR",{hour:'2-digit',minute:'2-digit'});
-        const timeToExpMin = Math.max(0, Math.round((exp - new Date())/60000));
+        const aimedStr = aimed.toLocaleTimeString("fr-FR", { hour: '2-digit', minute: '2-digit' });
+        const expStr = exp.toLocaleTimeString("fr-FR", { hour: '2-digit', minute: '2-digit' });
+        const timeToExpMin = Math.max(0, Math.round((exp - new Date()) / 60000));
 
         let crowd = "";
         const occ = v.MonitoredVehicleJourney?.OccupancyStatus || v.MonitoredVehicleJourney?.Occupancy || "";
@@ -133,25 +175,17 @@ async function horaire(id, stop, title) {
         } else {
           horairesHTML += `🕒 ${expStr} → ${dest} ${crowd} <b>${tag}</b> (dans ${timeToExpMin} min)<br>`;
         }
-      });
+      }
 
       const alert = await lineAlert(stop);
       if (alert) horairesHTML += `<div class="info">⚠️ ${alert}</div>`;
     }
+
     scheduleEl.innerHTML = horairesHTML;
-  } catch {
+  } catch (e) {
     scheduleEl.innerHTML = "Erreur horaire";
+    console.error(e);
   }
-}
-function afficherNews() {
-  const el = document.getElementById("news-banner-content");
-  if (!newsItems.length) {
-    el.textContent = "Aucune actu disponible";
-    return;
-  }
-  const article = newsItems[newsIndex];
-  el.innerHTML = `<b>${article.title}</b> – ${article.description}`;
-  newsIndex = (newsIndex + 1) % newsItems.length;
 }
 
 async function loadStops(journey, targetId) {
@@ -166,7 +200,6 @@ async function loadStops(journey, targetId) {
   }
 }
 
-
 async function lineAlert(stop) {
   const line = lineMap[stop];
   if (!line) return "";
@@ -178,5 +211,11 @@ async function lineAlert(stop) {
     const messages = data?.Siri?.ServiceDelivery?.GeneralMessageDelivery?.[0]?.InfoMessage || [];
     const msg = messages[0]?.Content?.MessageText || messages[0]?.Message || "";
     return msg ? `⚠️ ${msg}` : "";
-  } catch { return ""; }
-} 
+  } catch {
+    return "";
+  }
+}
+
+function createHorizontalScroller(stops) {
+  return `<div class="stops-scroll">🚏 ${stops.map(s => `<span>${s}</span>`).join(' ➔ ')}</div>`;
+}
