@@ -101,7 +101,7 @@ function createHorizontalScroller(stops) {
 async function horaire(id, stop, title) {
   const scheduleEl = document.getElementById(`${id}-schedules`);
   try {
-    const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=${stop.monitoringRef}`);
+    const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=STIF:StopArea:SP:${stop}:`);
     const data = await fetch(url).then(r => r.json());
     const visits = data.Siri.ServiceDelivery.StopMonitoringDelivery[0]?.MonitoredStopVisit || [];
 
