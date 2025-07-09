@@ -120,7 +120,7 @@ async function loadStops(journey, targetId) {
   try {
     const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/vehicle_journeys/${journey}`);
     const data = await fetch(url).then(r => r.ok ? r.json() : null);
-    const list = data?.vehicle_journeys?.[0]?.stop_times?.map(s => s.stop_point.name);
+    const list = data?.vehicle_journey?.stop_times?.map(s => s.stop_point.name);
     const div = document.getElementById(`gares-${targetId}`);
     if (div) div.innerHTML = list && list.length > 0 ? createHorizontalScroller(list) : "";
   } catch { /* ignore */ }
@@ -139,3 +139,4 @@ async function lineAlert(stop) {
     return msg ? `⚠️ ${msg}` : "";
   } catch { return ""; }
 }
+"""
