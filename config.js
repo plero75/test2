@@ -1,4 +1,5 @@
 export const CONFIG = {
+  newsUrl: "https://www.francetvinfo.fr/titres.rss",
   proxy: "https://ratp-proxy.hippodrome-proxy42.workers.dev/?url=",
   stops: {
     rer: "STIF:StopArea:SP:43135:",
