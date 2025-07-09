@@ -91,7 +91,6 @@ footer {
   font-weight: 600;
 }
 .schedules { font-size: 1em; line-height: 1.4; }
-.firstlast { margin-top: 6px; font-size: 0.85em; color: #666; }
 
 .stops-scroll {
   margin-top: 0.5rem;
@@ -127,11 +126,6 @@ a:focus, button:focus, .logo:focus {
 .stops-scroll span {
   margin-right: 0.9em;
   font-weight: 500;
-}
-.transport-block .firstlast {
-  font-size: 1.1em;
-  margin: 5px 0 10px 0;
-  color: #3750a0;
 }
 .schedules h3 {
   margin: 12px 0 6px 0;

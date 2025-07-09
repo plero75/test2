@@ -6,11 +6,9 @@ const lineMap = {
   "STIF:StopArea:SP:463641:": "STIF:Line::C01789:",
   "STIF:StopArea:SP:463644:": "STIF:Line::C01805:",
 };
-const cache = { stops: null, firstLast: null, lastFetch: 0 };
-const ONE_DAY = 86_400_000;
+// Les données GTFS locales ne sont plus utilisées pour l'instant
 
-document.addEventListener("DOMContentLoaded", async () => {
-  await loadStatic();
+document.addEventListener("DOMContentLoaded", () => {
   loop();
   setInterval(loop, 60_000);
   startWeatherLoop();
@@ -28,23 +26,6 @@ function clock() {
     new Date().toLocaleString("fr-FR", { weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 }
 
-async function loadStatic() {
-  try {
-    const saved = JSON.parse(localStorage.getItem("dashStatic") || "null");
-    if (saved && Date.now() - saved.lastFetch < ONE_DAY) {
-      Object.assign(cache, saved);
-      return;
-    }
-    const [stops, firstLast] = await Promise.all([
-      fetch("./static/gtfs-stops.json").then((r) => r.ok ? r.json() : []),
-      fetch("./static/gtfs-firstlast.json").then((r) => r.ok ? r.json() : {}),
-    ]);
-    Object.assign(cache, { stops, firstLast, lastFetch: Date.now() });
-    localStorage.setItem("dashStatic", JSON.stringify(cache));
-  } catch (e) {
-    console.warn("Static GTFS indisponible :", e);
-  }
-}
 
 function fetchAll() {
   horaire("rer", CONFIG.stops.rer, "🚆 RER A");
@@ -64,30 +45,16 @@ function createHorizontalScroller(stops) {
 async function horaire(id, stop, title) {
   const scheduleEl = document.getElementById(`${id}-schedules`);
   const alertEl = document.getElementById(`${id}-alert`);
-  const firstlastEl = document.getElementById(`${id}-firstlast`);
   try {
     const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=${stop}`);
     const data = await fetch(url).then(r => r.json());
     const visits = data.Siri.ServiceDelivery.StopMonitoringDelivery[0]?.MonitoredStopVisit || [];
 
-    // 🔹 Affichage premier/dernier départs si connu
-    const fl = cache.firstLast?.[id];
-    if (fl && firstlastEl) firstlastEl.innerHTML = `Premier départ : <b>${fl.first}</b> <span style="margin-left:20px">Dernier : <b>${fl.last}</b></span>`;
+    // Ancien affichage des premiers/derniers départs supprimé
 
     let horairesHTML = "";
 
     if (!visits.length) {
-      const now = new Date();
-      const firstTime = parseTimeToDate(fl?.first);
-      const lastTime = parseTimeToDate(fl?.last);
-      if (firstTime && now < firstTime) {
-        scheduleEl.innerHTML = `Service non commencé – premier départ prévu à ${fl.first}`;
-        return;
-      }
-      if (lastTime && now > lastTime) {
-        scheduleEl.innerHTML = `Service terminé – prochain départ prévu à ${fl.first}`;
-        return;
-      }
       scheduleEl.innerHTML = "Aucun passage prévu pour l’instant";
       return;
     }
@@ -111,8 +78,9 @@ async function horaire(id, stop, title) {
       horairesHTML += `<h3>Vers ${dest} – prochain départ dans : ${timeToExpMin} min (à ${timeStr})</h3>`;
 
       // -------- Affichage des arrêts desservis : une seule fois par destination, juste sous le titre
-      if (callFirst && first.MonitoredVehicleJourney?.VehicleJourneyRef) {
-        const journey = first.MonitoredVehicleJourney.VehicleJourneyRef;
+      const journey = first.MonitoredVehicleJourney?.VehicleJourneyRef
+        || first.MonitoredVehicleJourney?.FramedVehicleJourneyRef?.DatedVehicleJourneyRef;
+      if (id === "rer" && callFirst && journey) {
         horairesHTML += `<div id="gares-${id}-${journey}" class="stops-scroll" style="margin-bottom:8px;">🚉 …</div>`;
         loadStops(journey, `${id}-${journey}`);
       }
@@ -136,8 +104,6 @@ async function horaire(id, stop, title) {
         }
 
         let tag = "";
-        if (fl?.first === aimedStr) tag = "🚦 Premier départ";
-        if (fl?.last === aimedStr) tag = "🛑 Dernier départ";
         if (timeToExpMin > 0 && timeToExpMin < 2) tag = "🟢 Imminent";
         const status = call.StopPointStatus || call.ArrivalProximityText || "";
         if (/arrivée|en gare|at stop|stopped/i.test(status) && id === "rer") tag = "🚉 En gare";
@@ -274,10 +240,3 @@ function startWeatherLoop() {
   setInterval(meteo, 30 * 60 * 1000);
 }
 
-function parseTimeToDate(timeStr) {
-  if (!timeStr) return null;
-  const [hours, minutes] = timeStr.split(":").map(Number);
-  const d = new Date();
-  d.setHours(hours, minutes, 0, 0);
-  return d;
-}
