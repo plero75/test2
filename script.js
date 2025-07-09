@@ -27,8 +27,14 @@ async function news() {
   try {
     const res = await fetch(CONFIG.newsUrl);
     if (!res.ok) return;
-    const data = await res.json();
-    newsItems = data.items || [];
+    const text = await res.text();
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(text, "application/xml");
+    const items = Array.from(xml.querySelectorAll("item"));
+    newsItems = items.map(item => ({
+      title: item.querySelector("title")?.textContent || "Sans titre",
+      description: item.querySelector("description")?.textContent || ""
+    }));
     newsIndex = 0;
     afficherNews();
     setInterval(afficherNews, 15000); // toutes les 15 secondes
@@ -36,6 +42,7 @@ async function news() {
     console.error("Erreur actus :", e);
   }
 }
+
 function startNewsLoop() {
   news();
   setInterval(news, 10 * 60 * 1000); // met à jour toutes les 10 minutes
