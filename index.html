@@ -1,62 +1,92 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Transports Hippodrome Vincennes</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard Vincennes</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f4f8;
+      margin: 0;
+      padding: 0;
+      color: #1b1b1b;
+    }
+    header {
+      background-color: #1b2494;
+      color: white;
+      padding: 10px 20px;
+      font-size: 1.3em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #weather {
+      font-size: 0.9em;
+    }
+    #datetime {
+      font-weight: bold;
+    }
+    section {
+      padding: 20px;
+    }
+    h2 {
+      font-size: 1.2em;
+      color: #1b2494;
+      margin-top: 30px;
+    }
+    #news-banner {
+      background: #ffe700;
+      color: #1b1b1b;
+      padding: 10px 20px;
+      font-weight: bold;
+      font-size: 1em;
+      overflow-x: auto;
+    }
+    .info {
+      background: #ffefc7;
+      border-left: 4px solid #f2a100;
+      padding: 8px;
+      margin-top: 6px;
+      font-size: 0.95em;
+    }
+    .stops-scroll {
+      display: flex;
+      overflow-x: auto;
+      gap: 10px;
+      margin: 5px 0 10px;
+      font-size: 0.9em;
+      white-space: nowrap;
+    }
+    .stops-scroll span {
+      background: #e1e3e8;
+      padding: 5px 10px;
+      border-radius: 16px;
+    }
+  </style>
 </head>
 <body>
+
   <header>
-    <h1>🟢 Transports – Hippodrome de Vincennes</h1>
-    <div id="datetime"></div>
+    <div id="datetime">Chargement...</div>
+    <div id="weather">Météo...</div>
   </header>
-<div id="news-banner">
-  <div id="news-banner-content"></div>
-</div>
 
+  <div id="news-banner">
+    <span id="news-banner-content">Chargement des actualités...</span>
+  </div>
 
-  <main>
-    <section class="bloc" id="bloc-rer">
-      <h2>🚆 RER A</h2>
-      <div id="rer-alert" class="alert"></div>
-      <div id="rer-schedules"></div>
-    </section>
+  <section>
+    <h2>🚆 RER A</h2>
+    <div id="rer-schedules">Chargement...</div>
 
-    <section class="bloc" id="bloc-bus77">
-      <h2>🚌 Bus 77</h2>
-      <div id="bus77-alert" class="alert"></div>
-      <div id="bus77-schedules"></div>
-    </section>
+    <h2>🚌 Bus 77</h2>
+    <div id="bus77-schedules">Chargement...</div>
 
-    <section class="bloc" id="bloc-bus201">
-      <h2>🚌 Bus 201</h2>
-      <div id="bus201-alert" class="alert"></div>
-      <div id="bus201-schedules"></div>
-    </section>
-<div id="weather">Chargement météo...</div>
+    <h2>🚌 Bus 201</h2>
+    <div id="bus201-schedules">Chargement...</div>
+  </section>
 
-    <section class="bloc" id="bloc-courses">
-      <h2>🏇 Prochaine course</h2>
-      <div id="nextRace"></div>
-      <h3>Toutes les courses à venir</h3>
-      <div id="courses-content"></div>
-    </section>
-
-    <section class="bloc" id="bloc-meteo">
-      <div id="meteo"></div>
-    </section>
-
-    <section class="bloc" id="bloc-news">
-      <h2>📰 Actus</h2>
-      <div id="news-content"></div>
-    </section>
-  </main>
-
-  <footer>
-    <p>© Hippodrome de Vincennes – Données IDFM – Affichage temps réel</p>
-  </footer>
-
-  <script type="module" src="script.js"></script>
+  <script type="module" src="./script.js"></script>
 </body>
 </html>
