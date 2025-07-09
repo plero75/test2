@@ -3,6 +3,6 @@ export const CONFIG = {
   stops: {
     rer: "STIF:StopArea:SP:43135:",
     bus77: "STIF:StopArea:SP:463641:",
-    bus201: "STIF:StopArea:SP:463644:"
-  }
+    bus201: "STIF:StopArea:SP:463644:",
+  },
 };
