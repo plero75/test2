@@ -9,12 +9,15 @@
   
   // Boucles initiales
   document.addEventListener("DOMContentLoaded", () => {
-    loop();
-    setInterval(loop, 60_000);
-    startWeatherLoop();
-    startNewsLoop();
-    afficherProchaineCourseVincennes();
-    afficherToutesCoursesVincennes();
+  document.addEventListener("DOMContentLoaded", () => {
+  loop();
+  setInterval(loop, 60_000);
+  startWeatherLoop();
+  startNewsLoop();
+  // afficherProchaineCourseVincennes(); ← À commenter ou définir
+  // afficherToutesCoursesVincennes(); ← À commenter ou définir
+});
+
   });
   
   function loop() {
