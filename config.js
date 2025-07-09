@@ -6,7 +6,7 @@ export const CONFIG = {
     lat: 48.8212,
     lon: 2.4638
   },
-  newsUrl: "https://raw.githubusercontent.com/plero75/static-data/main/news.json",
+newsUrl: "https://api.rss2json.com/v1/api.json?rss_url=https://www.francetvinfo.fr/titres.rss",
   stops: {
     rer: {
       monitoringRef: "43135",
