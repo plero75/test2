@@ -179,5 +179,4 @@ async function lineAlert(stop) {
     const msg = messages[0]?.Content?.MessageText || messages[0]?.Message || "";
     return msg ? `⚠️ ${msg}` : "";
   } catch { return ""; }
-}
-"""
+} 
