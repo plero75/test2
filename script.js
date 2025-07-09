@@ -219,3 +219,7 @@ async function loadStops(journey, targetId) {
     console.error("Erreur chargement stops:", e);
   }
 }
+
+function createHorizontalScroller(stops) {
+  return `<div class="stops-scroll">🚏 ${stops.map(s => `<span>${s}</span>`).join('➔')}</div>`;
+}
