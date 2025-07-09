@@ -8,9 +8,10 @@ const lineMap = {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-  loop();
+   loop();
   setInterval(loop, 60_000);
   startWeatherLoop();
+  startNewsLoop();
   afficherProchaineCourseVincennes();
   afficherToutesCoursesVincennes();
 });
@@ -18,6 +19,26 @@ document.addEventListener("DOMContentLoaded", () => {
 function loop() {
   clock();
   fetchAll();
+}
+let newsItems = [];
+let newsIndex = 0;
+
+async function news() {
+  try {
+    const res = await fetch(CONFIG.newsUrl);
+    if (!res.ok) return;
+    const data = await res.json();
+    newsItems = data.items || [];
+    newsIndex = 0;
+    afficherNews();
+    setInterval(afficherNews, 15000); // toutes les 15 secondes
+  } catch (e) {
+    console.error("Erreur actus :", e);
+  }
+}
+function startNewsLoop() {
+  news();
+  setInterval(news, 10 * 60 * 1000); // met à jour toutes les 10 minutes
 }
 
 function clock() {
