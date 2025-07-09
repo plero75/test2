@@ -7,7 +7,6 @@ const proxy = CONFIG.proxy;
 let newsItems = [];
 let newsIndex = 0;
 
-// Boucles initiales
 document.addEventListener("DOMContentLoaded", () => {
   loop();
   setInterval(loop, 60_000);
@@ -138,8 +137,10 @@ async function horaire(id, stop, title) {
       const timeStr = expFirst.toLocaleTimeString("fr-FR", { hour: '2-digit', minute: '2-digit' });
       horairesHTML += `<h3>Vers ${dest} – dans ${timeToExpMin} min (à ${timeStr})</h3>`;
 
-      const journey = first.MonitoredVehicleJourney?.FramedVehicleJourneyRef?.DatedVehicleJourneyRef;
-      if (id === "rer" && journey && journey.startsWith("RATP-SIV:VehicleJourney::")) {
+      const journeyRaw = first.MonitoredVehicleJourney?.FramedVehicleJourneyRef?.DatedVehicleJourneyRef;
+      const match = journeyRaw?.match(/local-.*$/);
+      if (id === "rer" && match) {
+        const journey = `vehicle_journey:IDFM:stif:${match[0]}`;
         const scrollerId = `${id}-${journey.replace(/[^a-zA-Z0-9]/g, '')}`;
         horairesHTML += `<div id="gares-${scrollerId}" class="stops-scroll" style="margin-bottom:8px;">🚉 …</div>`;
         loadStops(journey, scrollerId);
