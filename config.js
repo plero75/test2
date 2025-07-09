@@ -1,9 +1,24 @@
+// config.js — Configuration centralisée
+
 export const CONFIG = {
-  newsUrl: "https://www.francetvinfo.fr/titres.rss",
   proxy: "https://ratp-proxy.hippodrome-proxy42.workers.dev/?url=",
-  stops: {
-    rer: "STIF:StopArea:SP:43135:",
-    bus77: "STIF:StopArea:SP:463641:",
-    bus201: "STIF:StopArea:SP:463644:",
+  weather: {
+    lat: 48.8212,
+    lon: 2.4638
   },
+  newsUrl: "https://raw.githubusercontent.com/plero75/static-data/main/news.json",
+  stops: {
+    rer: {
+      monitoringRef: "43135",
+      lineRef: "STIF:Line::C01742:"
+    },
+    bus77: {
+      monitoringRef: "463641",
+      lineRef: "STIF:Line::C01789:"
+    },
+    bus201: {
+      monitoringRef: "463644",
+      lineRef: "STIF:Line::C01805:"
+    }
+  }
 };
