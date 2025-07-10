@@ -1,23 +1,18 @@
-// script.js — version mise à jour avec structure complète PRIM et proxy — uniquement pour RER (gares desservies)
+// script.js — version revue pour un affichage type leon.gp / iena.cl avec focus clair sur horaires, directions, alertes et stops
 
 import { CONFIG } from './config.js';
 
 const proxy = CONFIG.proxy;
-
 let newsItems = [];
 let newsIndex = 0;
 
 document.addEventListener("DOMContentLoaded", () => {
-  loop();
-  setInterval(loop, 60_000);
+  clock();
   startWeatherLoop();
   startNewsLoop();
-});
-
-function loop() {
-  clock();
   fetchAll();
-}
+  setInterval(fetchAll, 60_000);
+});
 
 function clock() {
   const el = document.getElementById("datetime");
@@ -33,9 +28,11 @@ function clock() {
 }
 
 function fetchAll() {
-  horaire("rer", CONFIG.stops.rer, "🚆 RER A");
-  horaire("bus77", CONFIG.stops.bus77, "🚌 Bus 77");
-  horaire("bus201", CONFIG.stops.bus201, "🚌 Bus 201");
+  const stops = CONFIG.stops;
+  horaire("rer", stops.rer, "🚆 RER A");
+  horaire("bus77", stops.bus77, "🚌 Bus 77");
+  horaire("bus201", stops.bus201, "🚌 Bus 201");
+  horaire("joinville", stops.joinville, "🚉 Joinville-le-Pont – RER A");
   meteo();
   news();
 }
@@ -60,8 +57,7 @@ async function meteo() {
 }
 
 function startWeatherLoop() {
-  meteo();
-  setInterval(meteo, 10 * 60 * 1000);
+  setInterval(meteo, 600_000);
 }
 
 async function news() {
@@ -78,9 +74,8 @@ async function news() {
 }
 
 function startNewsLoop() {
-  news();
   setInterval(afficherNews, 15000);
-  setInterval(news, 10 * 60 * 1000);
+  setInterval(news, 600_000);
 }
 
 function afficherNews() {
@@ -100,119 +95,59 @@ function createHorizontalScroller(stops) {
 }
 
 async function horaire(id, stop, title) {
-  const scheduleEl = document.getElementById(`${id}-schedules`);
-  const monitoringRef = stop?.monitoringRef;
+  const el = document.getElementById(`${id}-schedules`);
+  const ref = stop?.monitoringRef;
   const lineRef = stop?.lineRef;
-
-  if (!monitoringRef) {
-    if (scheduleEl) scheduleEl.innerHTML = "Donnée stop manquante";
-    return;
-  }
+  if (!ref) return (el.innerHTML = "Stop inconnu");
 
   try {
-    const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=STIF:StopArea:SP:${monitoringRef}:`);
+    const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=STIF:StopArea:SP:${ref}:`);
     const data = await fetch(url).then(r => r.json());
     const visits = data?.Siri?.ServiceDelivery?.StopMonitoringDelivery?.[0]?.MonitoredStopVisit || [];
+    if (!visits.length) return (el.innerHTML = "Pas de passage prévu");
 
-    if (!visits.length) {
-      if (scheduleEl) scheduleEl.innerHTML = "Aucun passage prévu pour l’instant";
-      return;
-    }
-
-    const passagesByDest = {};
+    const byDest = {};
     for (let v of visits.slice(0, 8)) {
       const call = v.MonitoredVehicleJourney.MonitoredCall;
       const dest = Array.isArray(call.DestinationDisplay) ? call.DestinationDisplay[0]?.value : call.DestinationDisplay || "Indisponible";
-      if (!passagesByDest[dest]) passagesByDest[dest] = [];
-      passagesByDest[dest].push(v);
+      if (!byDest[dest]) byDest[dest] = [];
+      byDest[dest].push(v);
     }
 
-    let horairesHTML = "";
-    for (const [dest, passages] of Object.entries(passagesByDest)) {
-      const first = passages[0];
-      const callFirst = first.MonitoredVehicleJourney.MonitoredCall;
-      const expFirst = new Date(callFirst.ExpectedDepartureTime);
-      const now = new Date();
-      const timeToExpMin = Math.max(0, Math.round((expFirst - now) / 60000));
-      const timeStr = expFirst.toLocaleTimeString("fr-FR", { hour: '2-digit', minute: '2-digit' });
-      horairesHTML += `<h3>Vers ${dest} – dans ${timeToExpMin} min (à ${timeStr})</h3>`;
-
-      const journeyRaw = first.MonitoredVehicleJourney?.FramedVehicleJourneyRef?.DatedVehicleJourneyRef;
-      const match = journeyRaw?.match(/local-[^:]+/);
-      if (id === "rer" && match) {
-        const journey = `vehicle_journey:IDFM:stif:${match[0]}`;
-        const scrollerId = `${id}-${journey.replace(/[^a-zA-Z0-9]/g, '')}`;
-        horairesHTML += `<div id="gares-${scrollerId}" class="stops-scroll" style="margin-bottom:8px;">🚉 …</div>`;
-        loadStops(journey, scrollerId);
-      }
-
-      for (const v of passages) {
-        const call = v.MonitoredVehicleJourney.MonitoredCall;
+    let html = `<h2>${title}</h2>`;
+    for (const [dest, group] of Object.entries(byDest)) {
+      html += `<h3>→ ${dest}</h3>`;
+      for (const item of group) {
+        const call = item.MonitoredVehicleJourney.MonitoredCall;
         const aimed = new Date(call.AimedDepartureTime);
         const exp = new Date(call.ExpectedDepartureTime);
-        const diff = Math.round((exp - aimed) / 60000);
-        const late = diff > 1;
-        const cancel = (call.ArrivalStatus || "").toLowerCase() === "cancelled";
-        const aimedStr = aimed.toLocaleTimeString("fr-FR", { hour: '2-digit', minute: '2-digit' });
+        const delay = Math.round((exp - aimed) / 60000);
         const expStr = exp.toLocaleTimeString("fr-FR", { hour: '2-digit', minute: '2-digit' });
-        const timeToExpMin = Math.max(0, Math.round((exp - new Date()) / 60000));
-
-        let crowd = "";
-        const occ = v.MonitoredVehicleJourney?.OccupancyStatus || v.MonitoredVehicleJourney?.Occupancy || "";
-        if (/full|crowd|high/i.test(occ)) crowd = "🔴";
-        else if (/standing|medium|average/i.test(occ)) crowd = "🟡";
-        else if (/seats|low|few|empty|available/i.test(occ)) crowd = "🟢";
-
-        let tag = "";
-        const status = call.StopPointStatus || call.ArrivalProximityText || "";
-        if (timeToExpMin < 2) tag = "🟢 Imminent";
-        if (/arrivée|en gare|at stop|stopped/i.test(status) && id === "rer") tag = "🚉 En gare";
-        if (/at stop|stopped/i.test(status) && id.startsWith("bus")) tag = "🚌 À l'arrêt";
-
-        if (cancel) {
-          horairesHTML += `❌ <s>${aimedStr} → ${dest}</s> supprimé<br>`;
-        } else if (late) {
-          horairesHTML += `🕒 <s>${aimedStr}</s> → ${expStr} (+${diff} min) ${crowd} <b>${tag}</b><br>`;
-        } else {
-          horairesHTML += `🕒 ${expStr} → ${dest} ${crowd} <b>${tag}</b><br>`;
-        }
+        const tag = delay > 1 ? `🔴 +${delay} min` : "🟢";
+        html += `<div>${expStr} ${tag}</div>`;
       }
-
-      const alert = await lineAlert(lineRef);
-      if (alert) horairesHTML += `<div class="info">⚠️ ${alert}</div>`;
     }
 
-    if (scheduleEl) scheduleEl.innerHTML = horairesHTML;
+    const alert = await lineAlert(lineRef);
+    if (alert) html += `<div class="info">⚠️ ${alert}</div>`;
+    el.innerHTML = html;
   } catch (e) {
-    console.error("Erreur dans horaire():", e);
-    if (scheduleEl) scheduleEl.innerHTML = "Erreur horaire";
+    console.error("Erreur horaire:", e);
+    el.innerHTML = "Erreur";
   }
 }
 
 async function lineAlert(lineRef) {
   if (!lineRef) return "";
   try {
-    const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/v2/navitia/line_reports/lines/${lineRef.replace('STIF:Line::', 'line:IDFM:')}`);
+    const idfmLine = lineRef.replace("STIF:Line::", "line:IDFM:");
+    const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/v2/navitia/line_reports/lines/${idfmLine}`);
     const res = await fetch(url);
     if (!res.ok) return "";
     const data = await res.json();
-    const reports = data?.line_reports;
-    const msg = reports?.[0]?.message?.text || "";
-    return msg ? `⚠️ ${msg}` : "";
+    return data?.line_reports?.[0]?.message?.text || "";
   } catch (e) {
     console.error("Erreur lineAlert:", e);
     return "";
-  }
-}
-
-async function loadStops(journey, targetId) {
-  try {
-    const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/v2/navitia/vehicle_journeys/${journey}`);
-    const data = await fetch(url).then(r => r.ok ? r.json() : null);
-    const list = data?.vehicle_journeys?.[0]?.stop_times?.map(s => s.stop_point.name);
-    const div = document.getElementById(`gares-${targetId}`);
-    if (div && list?.length) div.innerHTML = createHorizontalScroller(list);
-  } catch (e) {
-    console.error("Erreur chargement stops:", e);
   }
 }
