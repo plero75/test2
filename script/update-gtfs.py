@@ -8,9 +8,9 @@ import json
 GTFS_URL = "https://eu.ftp.opendatasoft.com/stif/GTFS/IDFM-gtfs.zip"
 
 TARGET_LINES = [
-    "IDFM:C02251",  # Ligne 77
-    "IDFM:C01219",  # Ligne 201
-    "STIF:Line::C01742:"  # RER A
+    "IDFM:C02251",       # Ligne 77
+    "IDFM:C01219",       # Ligne 201
+    "STIF:Line::C01742:" # RER A
 ]
 
 OUTPUT_FILE = "static/gtfs_firstlast.json"
@@ -18,30 +18,6 @@ OUTPUT_FILE = "static/gtfs_firstlast.json"
 print("📥 Téléchargement du GTFS...")
 resp = requests.get(GTFS_URL)
 z = zipfile.ZipFile(BytesIO(resp.content))
-
-print("\n📍 Résumé des premiers et derniers départs :\n")
-
-# Mapping lisible
-labels = {
-    "IDFM:C02251": "Bus 77",
-    "IDFM:C01805": "Bus 201",
-    "IDFM:C01742": "RER A",
-}
-stops_to_check = {
-    "IDFM:C02251": ["IDFM:463644"],  # École du Breuil (77)
-    "IDFM:C01805": ["IDFM:463644"],  # École du Breuil (201)
-    "IDFM:C01742": ["IDFM:43135"],   # Joinville-le-Pont (RER A)
-}
-
-for route_id, stop_ids in stops_to_check.items():
-    print(f"🚌 {labels.get(route_id, route_id)}")
-    for stop_id in stop_ids:
-        stop_data = results.get(route_id, {}).get(stop_id)
-        if stop_data:
-            print(f"  - 🚏 {stop_id} → Premier : {stop_data['first']} / Dernier : {stop_data['last']}")
-        else:
-            print(f"  - 🚏 {stop_id} → ❌ Données non trouvées")
-
 
 print("📦 Extraction dans dossier ./gtfs/")
 os.makedirs("gtfs", exist_ok=True)
@@ -81,5 +57,28 @@ print("💾 Écriture dans", OUTPUT_FILE)
 os.makedirs("static", exist_ok=True)
 with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
     json.dump(results, f, ensure_ascii=False, indent=2)
+
+# 🔁 AFFICHAGE DES DÉPARTS CLÉS
+print("\n📍 Résumé des premiers et derniers départs :\n")
+
+labels = {
+    "IDFM:C02251": "Bus 77",
+    "IDFM:C01219": "Bus 201",
+    "STIF:Line::C01742:": "RER A"
+}
+stops_to_check = {
+    "IDFM:C02251": ["IDFM:463644"],  # École du Breuil (77)
+    "IDFM:C01219": ["IDFM:463644"],  # École du Breuil (201)
+    "STIF:Line::C01742:": ["IDFM:43135"]  # Joinville-le-Pont (RER A)
+}
+
+for route_id, stop_ids in stops_to_check.items():
+    print(f"🚌 {labels.get(route_id, route_id)}")
+    for stop_id in stop_ids:
+        stop_data = results.get(route_id, {}).get(stop_id)
+        if stop_data:
+            print(f"  - 🚏 {stop_id} → Premier : {stop_data['first']} / Dernier : {stop_data['last']}")
+        else:
+            print(f"  - 🚏 {stop_id} → ❌ Données non trouvées")
 
 print("✅ Fichier généré :", OUTPUT_FILE)
