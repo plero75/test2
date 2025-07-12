@@ -13,7 +13,7 @@ TARGET_LINES = [
     "STIF:Line::C01742:"  # RER A
 ]
 
-OUTPUT_FILE = "gtfs-firstlast.json"
+OUTPUT_FILE = "gtfs_firstlast.json"
 
 print("📥 Téléchargement du GTFS...")
 resp = requests.get(GTFS_URL)
