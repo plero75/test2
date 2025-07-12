@@ -23,7 +23,7 @@ jobs:
         pip install pandas requests
 
     - name: Exécuter le script GTFS
-      run: python ./scripts/gtfs_extract.py
+      run: python ./script/gtfs_extract.py
 
     - name: Commit et push des données extraites
       run: |
