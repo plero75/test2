@@ -76,6 +76,13 @@ stops_to_check = {
     "IDFM:C01805": ["IDFM:463644"],  # École du Breuil (201)
     "STIF:Line::C01742:": ["IDFM:43135"],   # Joinville-le-Pont (RER A)
 }
+
+target_stop_ids = ["IDFM:463644", "IDFM:43135"]
+print("\n🔍 Vérification manuelle de la présence des stop_id dans merged :")
+for sid in target_stop_ids:
+    match = merged[merged["stop_id"] == sid]
+    print(f"{sid} : {len(match)} occurrences")
+
 for route_id, stop_ids in stops_to_check.items():
     print(f"🚌 {labels.get(route_id, route_id)}")
     for stop_id in stop_ids:
