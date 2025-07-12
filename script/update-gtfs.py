@@ -38,6 +38,11 @@ trips = trips[trips["route_id"].isin(routes["route_id"])]
 
 merged = stop_times.merge(trips, on="trip_id")
 merged["departure_time"] = pd.to_timedelta(merged["departure_time"].fillna("00:00:00"))
+print("\n🔎 Liste des stops disponibles pour chaque ligne :")
+for route_id in TARGET_LINES:
+    stops_found = merged[merged["route_id"] == route_id]["stop_id"].unique()
+    print(f"🟢 {route_id} → {len(stops_found)} stops")
+    print(stops_found[:10])  # affiche les 10 premiers pour vérif rapide
 
 print("🕐 Calcul des premiers et derniers passages...")
 results = {}
