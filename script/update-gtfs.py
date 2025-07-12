@@ -82,9 +82,9 @@ labels = {
     "STIF:Line::C01742:": "RER A",
 }
 stops_to_check = {
-    "IDFM:C02251": ["IDFM:463644"],  # École du Breuil
-    "IDFM:C01805": ["IDFM:463644"],  # École du Breuil
-    "STIF:Line::C01742:": ["IDFM:43135"],  # Joinville-le-Pont
+    "IDFM:C02251",             # Bus 77
+    "IDFM:C01219",           # Bus 201
+    "IDFM:C01742",           # RER A
 }
 
 print("\n🔍 Vérification manuelle de la présence des stop_id dans merged :")
