@@ -10,29 +10,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout du dépôt
-      uses: actions/checkout@v3
+      - name: Checkout du dépôt
+        uses: actions/checkout@v3
 
-    - name: Installer Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
+      - name: Installer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-    - name: Installer les dépendances
-      run: |
-        pip install pandas requests
+      - name: Installer les dépendances
+        run: |
+          pip install pandas requests
 
-    - name: Exécuter le script GTFS
-      run:  python script/update-gtfs.py
+      - name: Exécuter le script GTFS
+        run: python script/update-gtfs.py
 
-
- - name: Commit GTFS update
-  run: |
-    git config --local user.email "action@github.com"
-    git config --local user.name "GitHub Action"
-    git add static/gtfs_firstlast.json
-    git commit -m "🆕 Update GTFS first/last departures"
-    git push
-
-      env: 
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Commit GTFS update
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add static/gtfs_firstlast.json
+          git commit -m "🆕 Update GTFS first/last departures" || echo "Aucun changement à committer"
+          git push
+        env: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
