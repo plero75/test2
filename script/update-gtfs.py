@@ -43,6 +43,16 @@ for route_id in TARGET_LINES:
     stops_found = merged[merged["route_id"] == route_id]["stop_id"].unique()
     print(f"🟢 {route_id} → {len(stops_found)} stops")
     print(stops_found[:10])  # affiche les 10 premiers pour vérif rapide
+# Chargement des stops
+stops = pd.read_csv("gtfs/stops.txt", dtype=str)
+
+# Affichage du nom des arrêts (stop_name) disponibles pour chaque ligne cible
+print("\n🔍 Vérification des stops disponibles avec leur nom :")
+
+for line_id, stop_ids in line_to_stop_ids.items():
+    print(f"\n🟢 Ligne {line_id} → {len(stop_ids)} stops")
+    noms = stops[stops["stop_id"].isin(stop_ids)][["stop_id", "stop_name"]].drop_duplicates()
+    print(noms.to_string(index=False))
 
 print("🕐 Calcul des premiers et derniers passages...")
 results = {}
