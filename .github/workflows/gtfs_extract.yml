@@ -1,0 +1,36 @@
+name: GTFS Extract – First & Last Passages
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * *' # Tous les jours à 2h du matin
+
+jobs:
+  extract_gtfs:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout du dépôt
+      uses: actions/checkout@v3
+
+    - name: Installer Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Installer les dépendances
+      run: |
+        pip install pandas requests
+
+    - name: Exécuter le script GTFS
+      run: python ./scripts/gtfs_extract.py
+
+    - name: Commit et push des données extraites
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add gtfs_firstlast.json
+        git commit -m "MAJ automatique des horaires GTFS"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
