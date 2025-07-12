@@ -9,8 +9,8 @@ GTFS_URL = "https://eu.ftp.opendatasoft.com/stif/GTFS/IDFM-gtfs.zip"
 
 TARGET_LINES = [
     "IDFM:C02251",         # Bus 77
-    "IDFM:C01805",         # Bus 201
-    "STIF:Line::C01742:"   # RER A
+    "IDFM:C01219",         # Bus 201
+    "IDFM:C01742"   # RER A
 ]
 
 OUTPUT_FILE = "static/gtfs_firstlast.json"
