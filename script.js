@@ -26,9 +26,9 @@ function clock() {
 }
 
 function fetchAll() {
-  horaire("rer", CONFIG.stops.rer, "🚆 RER A");
-  horaire("bus77", CONFIG.stops.bus77, "🚌 Bus 77");
-  horaire("bus201", CONFIG.stops.bus201, "🚌 Bus 201");
+  horaire("rer", CONFIG.stops.rer);
+  horaire("bus77", CONFIG.stops.bus77);
+  horaire("bus201", CONFIG.stops.bus201);
   meteo();
   news();
 }
@@ -37,9 +37,8 @@ function createHorizontalScroller(stops) {
   return `<div class="stops-scroll">🚏 ${stops.map(s => `<span>${s}</span>`).join('➔')}</div>`;
 }
 
-async function horaire(id, stop, title) {
+async function horaire(id, stop) {
   const scheduleEl = document.getElementById(`${id}-schedules`);
-  const alertEl = document.getElementById(`${id}-alert`);
   try {
     const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=${stop}`);
     const data = await fetch(url).then(r => r.json());
