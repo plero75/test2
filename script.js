@@ -116,3 +116,5 @@ function startNewsLoop() {
   news();
   setInterval(news, 600_000);
 }
+
+
