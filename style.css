@@ -133,3 +133,6 @@ a:focus, button:focus, .logo:focus {
   color: #2b2b2b;
   font-weight: 600;
 }
+.departure {
+  margin-bottom: 10px;
+}
