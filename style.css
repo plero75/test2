@@ -92,16 +92,24 @@ footer {
 }
 .schedules { font-size: 1em; line-height: 1.4; }
 
-.stops-scroll {
-  margin-top: 0.5rem;
-  white-space: nowrap;
+.stops-container {
   overflow: hidden;
-  box-sizing: border-box;
-  border-top: 1px solid #ccc;
-  padding-top: 0.5rem;
-  font-size: 1rem;
-  color: #222;
-  animation: scroll-left 25s linear infinite;
+  margin: 6px 0 12px 0;
+  background: #f2f5fc;
+  padding: 5px 6px 2px 6px;
+  border-radius: 8px;
+}
+
+.stops-scroll {
+  display: inline-block;
+  white-space: nowrap;
+  font-size: 1em;
+  animation: scroll-left var(--scroll-duration, 25s) linear infinite;
+}
+
+.stops-scroll span {
+  margin-right: 0.9em;
+  font-weight: 500;
 }
 
 @keyframes scroll-left {
@@ -113,23 +121,12 @@ a:focus, button:focus, .logo:focus {
   outline: 2px solid #003366;
   outline-offset: 2px;
 }
-.stops-scroll {
-  overflow-x: auto;
-  white-space: nowrap;
-  font-size: 1em;
-  margin: 6px 0 12px 0;
-  background: #f2f5fc;
-  padding: 5px 6px 2px 6px;
-  border-radius: 8px;
-  scroll-behavior: smooth;
-}
-.stops-scroll span {
-  margin-right: 0.9em;
-  font-weight: 500;
-}
 .schedules h3 {
   margin: 12px 0 6px 0;
   font-size: 1.1em;
   color: #2b2b2b;
   font-weight: 600;
+}
+.departure {
+  margin-bottom: 10px;
 }

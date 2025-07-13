@@ -34,7 +34,18 @@ function fetchAll() {
 }
 
 function createHorizontalScroller(stops) {
-  return `<div class="stops-scroll">🚏 ${stops.map(s => `<span>${s}</span>`).join('➔')}</div>`;
+  const id = `scroller-${Math.random().toString(36).slice(2, 9)}`;
+  // durée basée sur la largeur du contenu pour un défilement fluide
+  setTimeout(() => {
+    const el = document.getElementById(id);
+    if (el) {
+      const pxPerSec = 40; // vitesse de défilement
+      const duration = Math.max(10, el.scrollWidth / pxPerSec);
+      el.style.setProperty('--scroll-duration', `${duration}s`);
+    }
+  }, 0);
+  const list = stops.map(s => `<span>${s}</span>`).join('➔');
+  return `<div class="stops-container"><div id="${id}" class="stops-scroll">🚏 ${list}</div></div>`;
 }
 
 async function horaire(id, stop, title) {
@@ -64,16 +75,12 @@ async function horaire(id, stop, title) {
       const callFirst = first.MonitoredVehicleJourney.MonitoredCall;
       const expFirst = new Date(callFirst.ExpectedDepartureTime);
       const now = new Date();
-      const timeToExpMin = Math.max(0, Math.round((expFirst - now)/60000));
-      const timeStr = expFirst.toLocaleTimeString("fr-FR",{hour:'2-digit',minute:'2-digit'});
+      const timeToExpMin = Math.max(0, Math.round((expFirst - now) / 60000));
+      const timeStr = expFirst.toLocaleTimeString("fr-FR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
       horairesHTML += `<h3>Vers ${dest} – prochain départ dans : ${timeToExpMin} min (à ${timeStr})</h3>`;
-
-      const journey = first.MonitoredVehicleJourney?.FramedVehicleJourneyRef?.DatedVehicleJourneyRef;
-      if (id === "rer" && journey) {
-        const scrollerId = `${id}-${journey}`;
-        horairesHTML += `<div id="gares-${scrollerId}" class="stops-scroll" style="margin-bottom:8px;">🚉 …</div>`;
-        loadStops(journey, scrollerId);
-      }
 
       passages.forEach(v => {
         const call = v.MonitoredVehicleJourney.MonitoredCall;
@@ -82,9 +89,15 @@ async function horaire(id, stop, title) {
         const diff = Math.round((exp - aimed) / 60000);
         const late = diff > 1;
         const cancel = (call.ArrivalStatus || "").toLowerCase() === "cancelled";
-        const aimedStr = aimed.toLocaleTimeString("fr-FR",{hour:'2-digit',minute:'2-digit'});
-        const expStr = exp.toLocaleTimeString("fr-FR",{hour:'2-digit',minute:'2-digit'});
-        const timeToExpMin = Math.max(0, Math.round((exp - new Date())/60000));
+        const aimedStr = aimed.toLocaleTimeString("fr-FR", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+        const expStr = exp.toLocaleTimeString("fr-FR", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+        const timeToExpMin = Math.max(0, Math.round((exp - new Date()) / 60000));
 
         let crowd = "";
         const occ = v.MonitoredVehicleJourney?.OccupancyStatus || v.MonitoredVehicleJourney?.Occupancy || "";
@@ -98,13 +111,22 @@ async function horaire(id, stop, title) {
         if (/arrivée|en gare|at stop|stopped/i.test(status) && id === "rer") tag = "🚉 En gare";
         if (/at stop|stopped/i.test(status) && id.startsWith("bus")) tag = "🚌 À l'arrêt";
 
+        let line = "";
         if (cancel) {
-          horairesHTML += `❌ <s>${aimedStr} → ${dest}</s> train supprimé<br>`;
+          line = `❌ <s>${aimedStr} → ${dest}</s> train supprimé`;
         } else if (late) {
-          horairesHTML += `🕒 <s>${aimedStr}</s> → ${expStr} (+${diff} min) → ${dest} ${crowd} <b>${tag}</b> (dans ${timeToExpMin} min)<br>`;
+          line = `🕒 <s>${aimedStr}</s> → ${expStr} (+${diff} min) → ${dest} ${crowd} <b>${tag}</b> (dans ${timeToExpMin} min)`;
         } else {
-          horairesHTML += `🕒 ${expStr} → ${dest} ${crowd} <b>${tag}</b> (dans ${timeToExpMin} min)<br>`;
+          line = `🕒 ${expStr} → ${dest} ${crowd} <b>${tag}</b> (dans ${timeToExpMin} min)`;
         }
+
+        const journeyId = v.MonitoredVehicleJourney?.FramedVehicleJourneyRef?.DatedVehicleJourneyRef;
+        if (id === "rer" && journeyId) {
+          const scrollerId = `${id}-${journeyId}`;
+          line += `<div id="gares-${scrollerId}" class="stops-container">🚉 …</div>`;
+          loadStops(journeyId, scrollerId);
+        }
+        horairesHTML += `<div class="departure">${line}</div>`;
       });
 
       const alert = await lineAlert(stop);
@@ -118,9 +140,9 @@ async function horaire(id, stop, title) {
 
 async function loadStops(journey, targetId) {
   try {
-    const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/vehicle_journeys/${journey}`);
+    const url = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/vehicle-journey/${journey}`);
     const data = await fetch(url).then(r => r.ok ? r.json() : null);
-    const list = data?.vehicle_journeys?.[0]?.stop_times?.map(s => s.stop_point.name);
+    const list = data?.Siri?.ServiceDelivery?.VehicleMonitoringDelivery?.[0]?.VehicleActivity?.[0]?.MonitoredVehicleJourney?.OnwardCalls?.OnwardCall?.map(c => c.StopPointName);
     const div = document.getElementById(`gares-${targetId}`);
     if (div) div.innerHTML = list && list.length > 0 ? createHorizontalScroller(list) : "";
   } catch { /* ignore */ }
