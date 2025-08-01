@@ -2,32 +2,66 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard Vincennes</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="dashboard">
-    <h1>📍 Dashboard Vincennes</h1>
-    <div id="datetime"></div>
-    <div id="weather"></div>
+  <div id="dashboard">
 
-    <h2>🚲 Stations Vélib’</h2>
-    <div id="velib-vincennes"></div>
-    <div id="velib-breuil"></div>
-    <div id="velib-update"></div>
+    <!-- HEADER -->
+    <div id="header" class="bloc large">
+      <div id="datetime">🕐 --:-- – 📅 --/--/----</div>
+      <div id="weather">🌤️ Chargement météo…</div>
+    </div>
 
-    <h2>📰 Actualités</h2>
-    <div id="news-ticker" class="news-ticker">Chargement des actualités...</div>
+    <!-- RER A -->
+    <div id="rer" class="bloc">
+      <h2>🚆 RER A – Joinville-le-Pont</h2>
+      <div id="rer-list"></div>
+    </div>
 
-    <h2>🚆 Transports</h2>
-    <div id="rer-a"></div>
-    <div id="bus-joinville"></div>
-    <div id="bus-77"></div>
-    <div id="bus-201"></div>
+    <!-- BUS JOINVILLE regroupés -->
+    <div id="bus-joinville" class="bloc">
+      <h2>🚌 Bus – Joinville-le-Pont</h2>
+      <div id="bus-joinville-list"></div>
+    </div>
 
-    <h2>🧠 Projet Hippodrome Vincennes – Données temps réel PRIM, Open-Meteo, Vélib’</h2>
+    <!-- BUS 77 & 201 -->
+    <div id="bus-vincennes" class="bloc">
+      <h2>🚌 Bus 77 – Hippodrome de Vincennes</h2>
+      <div id="bus-77-list"></div>
+      <h2>🚌 Bus 201 – École du Breuil</h2>
+      <div id="bus-201-list"></div>
+    </div>
+
+    <!-- VELIB -->
+    <div id="velib" class="bloc">
+      <h2>🚲 Stations Vélib’</h2>
+      <div id="velib-vincennes"></div>
+      <div id="velib-breuil"></div>
+      <div id="velib-update"></div>
+    </div>
+
+    <!-- COURSES -->
+    <div id="courses" class="bloc">
+      <h2>🏇 Prochaines courses</h2>
+      <div id="courses-list">Chargement…</div>
+    </div>
+
+    <!-- ALERTES TRAFIC -->
+    <div id="alerts" class="bloc">
+      <h2>🚨 Alertes trafic</h2>
+      <div id="alerts-list">Chargement…</div>
+    </div>
+
+    <!-- NEWS -->
+    <div id="news" class="bloc news-ticker">
+      <div id="news-ticker">📰 Chargement des actualités…</div>
+    </div>
+
   </div>
+
   <script src="script.js"></script>
 </body>
 </html>
