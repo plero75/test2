@@ -42,8 +42,9 @@ main.grid {
   flex-grow: 1;
 }
 
-/* CARDS */
-.bloc {
+/* BLOCS (cards) */
+.bloc,
+.dashboard-block {
   background: white;
   padding: 1em;
   border-radius: 10px;
@@ -54,7 +55,8 @@ main.grid {
   justify-content: flex-start;
 }
 
-.bloc p {
+.bloc p,
+.dashboard-block p {
   margin: 0.4em 0;
 }
 
@@ -85,27 +87,6 @@ main.grid {
 }
 
 /* BANDEAU ACTU */
-marquee#news-ticker {
-  background: #0c1c2c;
-  color: white;
-  padding: 0.6em 1em;
-  font-size: 0.85em;
-  font-style: italic;
-}
-
-/* RESPONSIVE TWEAKS */
-@media (max-width: 500px) {
-  h1 {
-    font-size: 1.4em;
-  }
-
-  #datetime {
-    font-size: 0.9em;
-  }
-
-  .bloc {
-    font-size: 0.95em;
-  }
 #news-ticker {
   background-color: #052c53;
   color: white;
@@ -139,8 +120,22 @@ marquee#news-ticker {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* RESPONSIVE */
+@media (max-width: 500px) {
+  h1 {
+    font-size: 1.4em;
+  }
+
+  #datetime {
+    font-size: 0.9em;
+  }
+
+  .bloc, .dashboard-block {
+    font-size: 0.95em;
+  }
+
   #alertes,
-  marquee#news-ticker {
+  #news-ticker {
     font-size: 0.8em;
   }
 }
