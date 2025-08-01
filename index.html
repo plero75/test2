@@ -3,44 +3,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard Transports – Vincennes</title>
+  <title>🚉 Dashboard Transports – Vincennes</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>🚉 Dashboard Transports – Vincennes</h1>
-      <div id="datetime">🕐 --:-- – 📅 --/--/----</div>
-    </header>
+  <header>
+    <h1>🚉 Dashboard Transports – Vincennes</h1>
+    <div id="datetime"></div>
+  </header>
 
-    <section class="grid">
-      <div class="bloc" id="bloc-Joinville-le-Pont">
-        <h2>Joinville-le-Pont</h2>
-        <div>Chargement...</div>
-      </div>
-      <div class="bloc" id="bloc-Hippodrome de Vincennes">
-        <h2>Hippodrome de Vincennes</h2>
-        <div>Chargement...</div>
-      </div>
-      <div class="bloc" id="bloc-École du Breuil">
-        <h2>École du Breuil</h2>
-        <div>Chargement...</div>
-      </div>
-    </section>
+  <main class="grid">
+    <section id="rer-a" class="bloc"></section>
+    <section id="bus-joinville" class="bloc"></section>
+    <section id="bus-vincennes" class="bloc"></section>
+    <section id="bus-breuil" class="bloc"></section>
+    <section id="weather" class="bloc"></section>
+    <section id="velib" class="bloc"></section>
+  </main>
 
-    <section class="extras">
-      <div id="weather" class="extra">🌤️ Météo : chargement…</div>
-      <div class="extra velib-group">
-        <div id="velib-vincennes" class="velib">Vélib Vincennes</div>
-        <div id="velib-breuil" class="velib">Vélib Breuil</div>
-        <div id="velib-update" class="update"></div>
-      </div>
-    </section>
-
-    <section class="ticker">
-      <div id="news-ticker">📰 Actualités : chargement…</div>
-    </section>
-  </div>
+  <footer>
+    <div id="alertes" class="alertes"></div>
+    <marquee id="news-ticker" class="ticker"></marquee>
+  </footer>
 
   <script src="script.js"></script>
 </body>
