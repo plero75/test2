@@ -1,219 +1,182 @@
-const proxy = 'https://ratp-proxy.hippodrome-proxy42.workers.dev/?url=';
-const apiBase = 'https://prim.iledefrance-mobilites.fr/marketplace';
+const proxyBase = 'https://ratp-proxy.hippodrome-proxy42.workers.dev/?url=';
 
-// 🔄 Date & Heure
-function updateDateTime() {
-  const now = new Date();
-  document.getElementById("datetime").textContent =
-    `🕒 ${now.toLocaleTimeString()} – 📅 ${now.toLocaleDateString("fr-FR")}`;
-}
-setInterval(updateDateTime, 10000);
-updateDateTime();
-
-// 🚍 Lignes à afficher
+// Liste des arrêts à surveiller (StopAreaRef)
 const stops = [
   {
-    id: 'STIF:StopArea:SP:43135:',
-    name: 'Joinville-le-Pont (RER + Bus)',
-    lines: [
-      'C01742', 'C02251', 'C01130', 'C01135', 'C01137', 'C01139', 'C01141', 'C01219', 'C01260', 'C01399'
-    ],
-    element: 'bus-joinville'
+    id: 'STIF:StopArea:SP:43135:', // Joinville-le-Pont RER
+    name: 'Joinville-le-Pont',
+    lines: ['C01742'], // RER A
   },
   {
-    id: 'STIF:StopArea:SP:463641:',
-    name: 'Hippodrome de Vincennes (Bus 77)',
-    lines: ['C02251'],
-    element: 'bus-vincennes'
+    id: 'STIF:StopArea:SP:463641:', // Hippodrome
+    name: 'Hippodrome de Vincennes',
+    lines: ['C02251'], // Bus 77
   },
   {
-    id: 'STIF:StopArea:SP:463644:',
-    name: 'École du Breuil (Bus 201)',
-    lines: ['C01219'],
-    element: 'bus-breuil'
+    id: 'STIF:StopArea:SP:463644:', // École du Breuil
+    name: 'École du Breuil',
+    lines: ['C01219'], // Bus 201
   }
 ];
 
-// ⏰ Transports
-async function getDepartures(stopArea, lines, containerId) {
-  try {
-    const url = `${proxy}${apiBase}/stop-monitoring?MonitoringRef=${stopArea}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    const journeys = data.ServiceDelivery.StopMonitoringDelivery[0].MonitoredStopVisit;
+// Chargement après le DOM
+document.addEventListener("DOMContentLoaded", () => {
+  updateDateTime();
+  fetchWeather();
+  fetchVelib();
+  fetchNews();
+  fetchRaces();
+  fetchAllTransports();
+  fetchAlerts();
 
-    const grouped = {};
-    journeys.forEach(j => {
-      const line = j.MonitoredVehicleJourney.LineRef;
-      const dir = j.MonitoredVehicleJourney.DestinationName;
-      const aimed = j.MonitoredVehicleJourney.MonitoredCall.AimedArrivalTime;
-      const expected = j.MonitoredVehicleJourney.MonitoredCall.ExpectedArrivalTime;
-      const status = j.MonitoredVehicleJourney.MonitoredCall.ArrivalStatus;
+  setInterval(updateDateTime, 10000);
+  setInterval(fetchAllTransports, 60000); // rafraîchissement toutes les 60 sec
+});
 
-      const delayMin = Math.round((new Date(expected) - new Date()) / 60000);
-      const statusText = status === "delayed" ? `⚠️ Retardé (+${delayMin} min)` :
-                        status === "cancelled" ? "❌ Supprimé" :
-                        delayMin < 2 ? "🟢 Imminent" : "🟢 À l'heure";
-
-      const key = `${line} > ${dir}`;
-      if (!grouped[key]) grouped[key] = [];
-      grouped[key].push({ aimed, expected, delayMin, statusText });
-    });
-
-    let html = `<h3>${stopArea.includes("43135") ? "🚉 RER A + Bus Joinville" : "🚌 " + stops.find(s => s.id === stopArea).name}</h3>`;
-    Object.entries(grouped).forEach(([dir, depList]) => {
-      html += `<div class="destination"><strong>${dir}</strong><ul>`;
-      depList.slice(0, 4).forEach(dep => {
-        html += `<li>🕐 ${dep.aimed.slice(11, 16)} – ⏳ ${dep.delayMin} min – ${dep.statusText}</li>`;
-      });
-      html += `</ul></div>`;
-    });
-
-    document.getElementById(containerId).innerHTML = html;
-  } catch (e) {
-    document.getElementById(containerId).innerHTML = "⚠️ Erreur de données";
-  }
+// Affichage date & heure
+function updateDateTime() {
+  const now = new Date();
+  document.getElementById("datetime").textContent =
+    `🕐 ${now.toLocaleTimeString()} – 📅 ${now.toLocaleDateString("fr-FR")}`;
 }
 
-function refreshTransports() {
-  stops.forEach(s =>
-    getDepartures(s.id, s.lines, s.element)
-  );
-}
-refreshTransports();
-setInterval(refreshTransports, 60000);
-async function fetchAlerts() {
-  const alertBox = document.getElementById("alerts");
-  const url = `https://ratp-proxy.hippodrome-proxy42.workers.dev/?url=https://prim.iledefrance-mobilites.fr/marketplace/general-message?LineRef=STIF:Line::C01742:`;
+// --------- MODULE TRANSPORTS ---------
+async function fetchAllTransports() {
+  stops.forEach(async stop => {
+    const bloc = document.getElementById(`bloc-${stop.name.replace(/\s+/g, '')}`);
+    if (!bloc) return;
 
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
+    try {
+      const url = `${proxyBase}https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=${stop.id}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const passages = parseStopMonitoring(data);
 
-    const messages = data?.GeneralMessageDelivery?.[0]?.GeneralMessage;
-    if (messages?.length > 0) {
-      const alertText = messages.map(msg => msg.Information?.[0]?.Message?.[0]?.Text?.[0]).join(" | ");
-      alertBox.innerHTML = `🚨 ${alertText}`;
-    } else {
-      alertBox.innerHTML = `📍 Aucune alerte trafic`;
+      if (passages.length === 0) {
+        bloc.innerHTML = `<p>⚠️ Aucun passage à venir</p>`;
+        return;
+      }
+
+      bloc.innerHTML = `<h3>${stop.name}</h3>` + passages.map(p => `
+        <div class="destination">
+          <p>🚍 ${p.line} → ${p.destination}</p>
+          <ul>
+            <li>🕐 ${formatTime(p.expectedTime)} (${p.status})</li>
+          </ul>
+        </div>
+      `).join('');
+    } catch (e) {
+      bloc.innerHTML = `<p>⚠️ Erreur de données</p>`;
+      console.error(`Erreur stop ${stop.name}:`, e);
     }
-  } catch (e) {
-    alertBox.innerHTML = `📍 Alerte indisponible`;
-  }
+  });
 }
 
-// 🌤 Météo
+// Parsing des données SIRI
+function parseStopMonitoring(data) {
+  const visits = data?.Siri?.ServiceDelivery?.StopMonitoringDelivery?.[0]?.MonitoredStopVisit;
+  if (!visits || visits.length === 0) return [];
+
+  return visits.slice(0, 4).map(visit => {
+    const journey = visit.MonitoredVehicleJourney;
+    const line = journey?.LineRef?.value?.split("::")[2]?.replace(/:/g, "") || "???";
+    const destination = journey?.MonitoredCall?.DestinationDisplay?.[0]?.value || "???";
+    const expectedTime = journey?.MonitoredCall?.ExpectedDepartureTime;
+    const status = journey?.DepartureStatus || "inconnu";
+    return { line, destination, expectedTime, status };
+  });
+}
+
+function formatTime(dateStr) {
+  const date = new Date(dateStr);
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+// --------- MODULE METEO ---------
 async function fetchWeather() {
-  const url = "https://api.open-meteo.com/v1/forecast?latitude=48.84&longitude=2.45&current=temperature_2m,weathercode&timezone=Europe%2FParis";
-  const res = await fetch(url);
-  const data = await res.json();
-  const temp = data.current.temperature_2m;
-  document.getElementById("weather").innerHTML = `🌤️ Température actuelle : ${temp} °C`;
-}
-fetchWeather();
-setInterval(fetchWeather, 30 * 60 * 1000);
-
-// 🚲 Vélib'
-async function fetchVelib() {
-  const urls = {
-    "Hippodrome Paris-Vincennes": "https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/velib-disponibilite-en-temps-reel/exports/json?lang=fr&q=12163",
-    "Pyramide - École du Breuil": "https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/velib-disponibilite-en-temps-reel/exports/json?lang=fr&q=12128"
-  };
-
-  let html = "";
-  for (const [name, url] of Object.entries(urls)) {
+  try {
+    const url = "https://api.open-meteo.com/v1/forecast?latitude=48.84&longitude=2.45&current=temperature_2m,weathercode&timezone=Europe%2FParis";
     const res = await fetch(url);
     const data = await res.json();
-    const d = data[0];
-    html += `<p>📍 <strong>${name}</strong><br>🚲 ${d.mechanical} méca | ⚡ ${d.ebike} élec<br>🅿️ ${d.numdocks} bornes</p>`;
-  }
-  document.getElementById("velib").innerHTML = html;
-}
-fetchVelib();
-setInterval(fetchVelib, 60000);
-
-// --- Actus défilantes (FranceTV via RSS2JSON) ---
-let newsItems = [];
-let currentNewsIndex = 0;
-
-async function fetchNewsTicker(containerId) {
-  const url = 'https://api.rss2json.com/v1/api.json?rss_url=https://www.francetvinfo.fr/titres.rss';
-  try {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`HTTP error ${response.status}`);
-    const data = await response.json();
-    newsItems = data.items || [];
-    if (newsItems.length === 0) {
-      document.getElementById(containerId).innerHTML = '✅ Aucun article';
-      return;
-    }
-    currentNewsIndex = 0;
-    showNewsItem(containerId);
-  } catch (err) {
-    document.getElementById(containerId).textContent = '❌ Erreur actus';
+    const temp = data.current.temperature_2m;
+    document.getElementById("weather").textContent = `🌤️ Température actuelle : ${temp} °C`;
+  } catch {
+    document.getElementById("weather").textContent = `⚠️ Erreur météo`;
   }
 }
 
-function showNewsItem(containerId) {
-  if (newsItems.length === 0) return;
-  const item = newsItems[currentNewsIndex];
-  const desc = item.description
-    ? item.description.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/ +/g, ' ').trim()
-    : '';
-  const shortDesc = desc.length > 220
-    ? desc.slice(0, 217).replace(/ [^ ]*$/, '') + "…"
-    : desc;
+// --------- MODULE VELIB ---------
+async function fetchVelib() {
+  const stations = [
+    { id: "21057", name: "Hippodrome Paris-Vincennes" },
+    { id: "121018032", name: "Pyramide - École du Breuil" }
+  ];
 
-  document.getElementById(containerId).innerHTML = `
-    <div class="news-item">
-      📰 <b>${item.title}</b>
-      <div class="news-desc">${shortDesc}</div>
-    </div>`;
-
-  currentNewsIndex = (currentNewsIndex + 1) % newsItems.length;
-  setTimeout(() => showNewsItem(containerId), 9000);
-}
-
-// Lancement automatique au chargement
-fetchNewsTicker('news-ticker');
-
-// 🚨 Alertes trafic
-async function fetchAlertes() {
-  const alertBox = document.getElementById("alertes");
-
+  const bloc = document.getElementById("velib");
   try {
-    const urls = [
-      `${proxy}${apiBase}/general-message?LineRef=STIF:Line::C01742:`,
-      `${proxy}${apiBase}/v2/info-trafic/lines/STIF:Line::C01742:`
-    ];
+    const res = await fetch("https://velib-metropole-opendata.smoove.pro/opendata/Velib_Metropole/station_status.json");
+    const data = await res.json();
+    bloc.innerHTML = "";
 
-    const [generalRes, infoRes] = await Promise.all(urls.map(u => fetch(u)));
-    const [generalData, infoData] = await Promise.all([generalRes.json(), infoRes.json()]);
+    stations.forEach(({ id, name }) => {
+      const station = data.data.stations.find(s => s.station_id === id);
+      if (!station) return;
 
-    const generalMessages = generalData?.GeneralMessageDelivery?.[0]?.GeneralMessage || [];
-    const infoMessages = infoData?.disruptions || [];
-
-    let messages = [];
-
-    generalMessages.forEach(m => {
-      const txt = m?.Information?.[0]?.Message?.[0]?.Text?.[0];
-      if (txt) messages.push(`📢 ${txt}`);
+      bloc.innerHTML += `
+        <p>📍 <strong>${name}</strong><br>
+        🚲 ${station.num_bikes_available_types[0]?.mechanical || 0} méca |
+        ⚡ ${station.num_bikes_available_types[1]?.ebike || 0} élec<br>
+        🅿️ ${station.num_docks_available ?? '??'} bornes</p>`;
     });
-
-    infoMessages.forEach(m => {
-      const txt = m?.title;
-      if (txt) messages.push(`🚧 ${txt}`);
-    });
-
-    if (messages.length > 0) {
-      alertBox.innerHTML = messages.slice(0, 3).join(" | ");
-    } else {
-      alertBox.textContent = "✅ Aucun incident signalé";
-    }
-
   } catch (e) {
-    alertBox.textContent = "❓ Alerte indisponible";
+    bloc.innerHTML = `<p>⚠️ Erreur Vélib'</p>`;
   }
 }
-fetchAlertes();
-setInterval(fetchAlertes, 180000); // toutes les 3 minutes
+
+// --------- MODULE NEWS ---------
+async function fetchNews() {
+  try {
+    const res = await fetch("https://www.francetvinfo.fr/titres.rss");
+    const text = await res.text();
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(text, "text/xml");
+    const items = xml.querySelectorAll("item");
+    const newsItems = [...items].slice(0, 5).map(item => item.querySelector("title")?.textContent);
+    const ticker = document.getElementById("news-ticker");
+    ticker.innerHTML = newsItems.join(" ⚫ ");
+  } catch (e) {
+    document.getElementById("news-ticker").textContent = "⚠️ Actus indisponibles";
+  }
+}
+
+// --------- MODULE COURSES ---------
+async function fetchRaces() {
+  try {
+    const res = await fetch("races.json");
+    const data = await res.json();
+    const bloc = document.getElementById("races");
+    bloc.innerHTML = `<ul>${data.slice(0, 3).map(r => `<li>${r.date} – ${r.title}</li>`).join("")}</ul>`;
+  } catch {
+    document.getElementById("races").innerHTML = `<p>⚠️ Erreur données courses</p>`;
+  }
+}
+
+// --------- MODULE ALERTES ---------
+async function fetchAlerts() {
+  const bloc = document.getElementById("alertes");
+  try {
+    const url = `${proxyBase}https://prim.iledefrance-mobilites.fr/marketplace/v2/general-message`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (!data || !data.general_messages || data.general_messages.length === 0) {
+      bloc.innerHTML = "✅ Aucun incident signalé";
+    } else {
+      bloc.innerHTML = data.general_messages.map(msg =>
+        `⚠️ ${msg.info_message.text?.fr || "Perturbation"}`
+      ).join(" | ");
+    }
+  } catch (e) {
+    bloc.innerHTML = "⚠️ Alerte indisponible";
+  }
+}
