@@ -82,6 +82,25 @@ function refreshTransports() {
 }
 refreshTransports();
 setInterval(refreshTransports, 60000);
+async function fetchAlerts() {
+  const alertBox = document.getElementById("alerts");
+  const url = `https://ratp-proxy.hippodrome-proxy42.workers.dev/?url=https://prim.iledefrance-mobilites.fr/marketplace/general-message?LineRef=STIF:Line::C01742:`;
+
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+
+    const messages = data?.GeneralMessageDelivery?.[0]?.GeneralMessage;
+    if (messages?.length > 0) {
+      const alertText = messages.map(msg => msg.Information?.[0]?.Message?.[0]?.Text?.[0]).join(" | ");
+      alertBox.innerHTML = `🚨 ${alertText}`;
+    } else {
+      alertBox.innerHTML = `📍 Aucune alerte trafic`;
+    }
+  } catch (e) {
+    alertBox.innerHTML = `📍 Alerte indisponible`;
+  }
+}
 
 // 🌤 Météo
 async function fetchWeather() {
