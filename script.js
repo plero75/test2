@@ -1,3 +1,4 @@
+
 document.addEventListener("DOMContentLoaded", () => {
   updateDateTime();
   fetchWeather();
@@ -7,14 +8,12 @@ document.addEventListener("DOMContentLoaded", () => {
   setInterval(updateDateTime, 10000);
 });
 
-// 🕐 Heure et date
 function updateDateTime() {
   const now = new Date();
   document.getElementById("datetime").textContent =
     `🕐 ${now.toLocaleTimeString()} – 📅 ${now.toLocaleDateString("fr-FR")}`;
 }
 
-// 🌤️ Météo
 async function fetchWeather() {
   try {
     const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=48.84&longitude=2.45&current=temperature_2m&timezone=Europe%2FParis");
@@ -25,7 +24,6 @@ async function fetchWeather() {
   }
 }
 
-// 🚲 Vélib
 async function fetchVelib() {
   try {
     const [info, status] = await Promise.all([
@@ -39,13 +37,11 @@ async function fetchVelib() {
       return `🚲 ${i.name} : ${s.num_bikes_available} vélos, ${s.num_docks_available} places`;
     }).join("<br>");
     document.getElementById("velib").innerHTML = html;
-    console.log("[Vélib] Données chargées :", html);
   } catch {
     document.getElementById("velib").textContent = "🚲 Vélib’ indisponible.";
   }
 }
 
-// 🚍 Transport en temps réel
 async function fetchTransport() {
   const proxy = "https://ratp-proxy.hippodrome-proxy42.workers.dev/?url=";
   const stops = [
@@ -78,7 +74,6 @@ async function fetchTransport() {
         const aimed = new Date(aimedRaw);
         const expected = new Date(expectedRaw);
         const diff = Math.round((expected - new Date()) / 60000);
-        const idvj = visit.MonitoredVehicleJourney.VehicleJourneyRef;
         const status = call?.ArrivalStatus || "onTime";
 
         let badge = '<span class="badge">🕐</span>';
@@ -90,17 +85,21 @@ async function fetchTransport() {
           container.innerHTML += `<div>${badge} ${expected.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} → ${dest}</div>`;
         }
 
-        // Liste des arrêts
-        fetch(proxy + encodeURIComponent("https://prim.iledefrance-mobilites.fr/marketplace/vehicle_journeys/" + idvj))
-          .then(r => r.json())
-          .then(vj => {
-            const stops = vj.vehicle_journeys[0]?.stop_times.map(s => s.stop_point.name).join(" → ");
-            if (stops) {
-              container.innerHTML += `<div style="font-size:0.9em;color:#666;">📍 ${stops}</div>`;
-            }
-          });
+        // Vérification et affichage des arrêts desservis
+        const idvj = visit.MonitoredVehicleJourney.VehicleJourneyRef;
+        if (idvj) {
+          const vjUrl = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/vehicle_journeys/${idvj}`);
+          fetch(vjUrl)
+            .then(r => r.json())
+            .then(vj => {
+              if (vj.vehicle_journeys && vj.vehicle_journeys[0]) {
+                const stopsList = vj.vehicle_journeys[0].stop_times.map(s => s.stop_point.name).join(" → ");
+                container.innerHTML += `<div style="font-size:0.9em;color:#666;">📍 ${stopsList}</div>`;
+              }
+            })
+            .catch(e => console.warn("Erreur vehicle_journey:", e));
+        }
       }
-
     } catch (e) {
       console.warn(`[Transport] Erreur sur ${stop.name}`, e);
       container.innerHTML += "<p>⚠️ Erreur ou API indisponible.</p>";
