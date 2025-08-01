@@ -2,9 +2,9 @@
 document.addEventListener("DOMContentLoaded", () => {
   updateDateTime();
   fetchWeather();
-  fetchVelib();
+  fetchVelibDirect('https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/velib-disponibilite-en-temps-reel/exports/json?lang=fr&qv1=(12163)', 'velib-vincennes');
+  fetchVelibDirect('https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/velib-disponibilite-en-temps-reel/exports/json?lang=fr&qv1=(12128)', 'velib-breuil');
   fetchTransport();
-
   setInterval(updateDateTime, 10000);
 });
 
@@ -24,21 +24,22 @@ async function fetchWeather() {
   }
 }
 
-async function fetchVelib() {
+async function fetchVelibDirect(url, containerId) {
   try {
-    const [info, status] = await Promise.all([
-      fetch("https://velib-metropole-opendata.smoove.pro/opendata/Velib_Metropole/station_information.json").then(r => r.json()),
-      fetch("https://velib-metropole-opendata.smoove.pro/opendata/Velib_Metropole/station_status.json").then(r => r.json())
-    ]);
-    const ids = ["12123", "21329"];
-    const html = ids.map(id => {
-      const i = info.data.stations.find(s => s.station_id === id);
-      const s = status.data.stations.find(s => s.station_id === id);
-      return `🚲 ${i.name} : ${s.num_bikes_available} vélos, ${s.num_docks_available} places`;
-    }).join("<br>");
-    document.getElementById("velib").innerHTML = html;
-  } catch {
-    document.getElementById("velib").textContent = "🚲 Vélib’ indisponible.";
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+    const stations = await response.json();
+    const s = stations[0];
+    document.getElementById(containerId).innerHTML = `
+      <div class="velib-block">
+        📍 ${s.name}<br>
+        🚲 ${s.numbikesavailable} mécaniques&nbsp;|&nbsp;🔌 ${s.ebike} électriques<br>
+        🅿️ ${s.numdocksavailable} bornes
+      </div>
+    `;
+    document.getElementById('velib-update').textContent = 'Mise à jour : ' + (new Date()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+  } catch (err) {
+    document.getElementById(containerId).innerHTML = '❌ Erreur Vélib’';
   }
 }
 
@@ -69,7 +70,8 @@ async function fetchTransport() {
         const call = visit.MonitoredVehicleJourney.MonitoredCall;
         const aimedRaw = call?.AimedArrivalTime || call?.AimedDepartureTime;
         const expectedRaw = call?.ExpectedArrivalTime || call?.ExpectedDepartureTime;
-        const dest = visit.MonitoredVehicleJourney.DestinationName?.value || "Destination inconnue";
+        const rawDest = visit.MonitoredVehicleJourney.DestinationName;
+        const dest = typeof rawDest === "string" ? rawDest : rawDest?.value || "Destination inconnue";
 
         const aimed = new Date(aimedRaw);
         const expected = new Date(expectedRaw);
@@ -85,7 +87,6 @@ async function fetchTransport() {
           container.innerHTML += `<div>${badge} ${expected.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} → ${dest}</div>`;
         }
 
-        // Vérification et affichage des arrêts desservis
         const idvj = visit.MonitoredVehicleJourney.VehicleJourneyRef;
         if (idvj) {
           const vjUrl = proxy + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/vehicle_journeys/${idvj}`);
