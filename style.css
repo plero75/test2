@@ -1,79 +1,26 @@
 
 body {
   font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background: #f2f4f8;
+  background-color: #f2f2f2;
   color: #333;
-}
-
-header, footer {
-  text-align: center;
-  padding: 1rem;
-  background-color: #002b55;
-  color: white;
-}
-
-h1 {
-  font-size: 1.8rem;
   margin: 0;
+  padding: 20px;
 }
 
-.module-block, .transport-block {
-  margin: 1rem;
-  padding: 1rem;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  font-size: 1.1rem;
+.dashboard {
+  max-width: 900px;
+  margin: auto;
 }
 
-.transport-block div {
-  padding: 0.3rem 0;
-  border-bottom: 1px solid #eee;
+.news-ticker {
+  background: #eee;
+  padding: 10px;
+  overflow: hidden;
+  white-space: nowrap;
+  animation: scroll-left 20s linear infinite;
 }
 
-.transport-block div:last-child {
-  border-bottom: none;
-}
-
-#datetime {
-  margin-top: 0.5rem;
-  font-size: 1rem;
-  color: #ddd;
-}
-
-footer {
-  font-size: 0.9rem;
-}
-
-@media screen and (max-width: 600px) {
-  .module-block, .transport-block {
-    margin: 0.5rem;
-    padding: 0.8rem;
-  }
-  h1 {
-    font-size: 1.3rem;
-  }
-}
-
-.badge {
-  display: inline-block;
-  padding: 0.2em 0.6em;
-  font-size: 0.85em;
-  border-radius: 8px;
-  margin-right: 0.4em;
-}
-
-.badge.green {
-  background-color: #d4edda;
-  color: #155724;
-}
-.badge.red {
-  background-color: #f8d7da;
-  color: #721c24;
-}
-.badge.orange {
-  background-color: #fff3cd;
-  color: #856404;
+@keyframes scroll-left {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
 }
