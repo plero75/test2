@@ -179,16 +179,41 @@ fetchNewsTicker('news-ticker');
 
 // 🚨 Alertes trafic
 async function fetchAlertes() {
+  const alertBox = document.getElementById("alertes");
+
   try {
-    const url = `${proxy}${apiBase}/general-message`;
-    const res = await fetch(url);
-    const data = await res.json();
-    const alerts = data.GeneralMessageDelivery[0].InfoMessage;
-    const alertText = alerts.slice(0, 2).map(a => a.InfoMessage.Text[0].value).join(" ⚠️ ");
-    document.getElementById("alertes").textContent = alertText || "✅ Aucun incident signalé";
-  } catch {
-    document.getElementById("alertes").textContent = "❓ Alerte indisponible";
+    const urls = [
+      `${proxy}${apiBase}/general-message?LineRef=STIF:Line::C01742:`,
+      `${proxy}${apiBase}/v2/info-trafic/lines/STIF:Line::C01742:`
+    ];
+
+    const [generalRes, infoRes] = await Promise.all(urls.map(u => fetch(u)));
+    const [generalData, infoData] = await Promise.all([generalRes.json(), infoRes.json()]);
+
+    const generalMessages = generalData?.GeneralMessageDelivery?.[0]?.GeneralMessage || [];
+    const infoMessages = infoData?.disruptions || [];
+
+    let messages = [];
+
+    generalMessages.forEach(m => {
+      const txt = m?.Information?.[0]?.Message?.[0]?.Text?.[0];
+      if (txt) messages.push(`📢 ${txt}`);
+    });
+
+    infoMessages.forEach(m => {
+      const txt = m?.title;
+      if (txt) messages.push(`🚧 ${txt}`);
+    });
+
+    if (messages.length > 0) {
+      alertBox.innerHTML = messages.slice(0, 3).join(" | ");
+    } else {
+      alertBox.textContent = "✅ Aucun incident signalé";
+    }
+
+  } catch (e) {
+    alertBox.textContent = "❓ Alerte indisponible";
   }
 }
 fetchAlertes();
-setInterval(fetchAlertes, 180000);
+setInterval(fetchAlertes, 180000); // toutes les 3 minutes
