@@ -1,132 +1,114 @@
+/* RESET & BASE */
 body {
   margin: 0;
-  padding: 0;
-  font-family: sans-serif;
-  background: #f2f7fb;
+  font-family: "Segoe UI", sans-serif;
+  background: #eef4f9;
   color: #222;
-}
-
-.container {
-  max-width: 1080px;
-  margin: auto;
-  padding: 1rem;
-}
-
-header {
-  text-align: center;
-  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 h1 {
-  font-size: 1.8rem;
-  margin: 0;
+  text-align: center;
+  margin: 0.5em 0 0;
+  font-size: 1.8em;
 }
 
-#datetime {
-  font-size: 1rem;
-  margin-top: 0.5rem;
-  color: #444;
+h3 {
+  margin-top: 0;
+  color: #004aad;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.bloc {
-  background: white;
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 0 6px rgba(0,0,0,0.1);
-}
-
-.bloc h2 {
-  font-size: 1.2rem;
-  color: #003366;
-  margin-bottom: 0.5rem;
-}
-
-.destination {
-  margin-bottom: 0.7rem;
-  font-size: 0.95rem;
-}
-
-.horaire {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.9rem;
-  margin-top: 0.2rem;
-  padding-left: 1rem;
-}
-
-.extras {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  justify-content: space-around;
+header {
+  background: #fff;
+  padding: 1em;
+  border-bottom: 2px solid #ccc;
   text-align: center;
 }
 
-.extra {
-  background: #ffffff;
-  padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 0 5px rgba(0,0,0,0.1);
-  min-width: 260px;
-  flex: 1;
+#datetime {
+  font-size: 1em;
+  margin-top: 0.5em;
+  color: #555;
 }
 
-.velib-group {
+/* GRID LAYOUT */
+main.grid {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  flex-grow: 1;
+}
+
+/* CARDS */
+.bloc {
+  background: white;
+  padding: 1em;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  min-height: 150px;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  justify-content: flex-start;
 }
 
-.velib-block {
-  font-size: 0.95rem;
-  line-height: 1.4;
+.bloc p {
+  margin: 0.4em 0;
 }
 
-.update {
-  font-size: 0.8rem;
-  color: #666;
+/* TRANSPORTS */
+.destination {
+  margin-top: 0.6em;
 }
 
-.ticker {
-  background: #003366;
+.destination ul {
+  padding-left: 1em;
+  margin: 0.2em 0;
+  list-style: none;
+}
+
+.destination li {
+  margin-bottom: 0.2em;
+  font-size: 0.95em;
+}
+
+/* ALERTES */
+#alertes {
+  background: #002c5d;
+  color: #fff;
+  padding: 0.7em 1em;
+  font-size: 0.9em;
+  text-align: center;
+  font-weight: bold;
+}
+
+/* BANDEAU ACTU */
+marquee#news-ticker {
+  background: #0c1c2c;
   color: white;
-  padding: 0.7rem 1rem;
-  font-size: 0.95rem;
-  border-radius: 5px;
-  overflow: hidden;
+  padding: 0.6em 1em;
+  font-size: 0.85em;
+  font-style: italic;
 }
 
-.news-item {
-  white-space: nowrap;
-  animation: ticker 20s linear infinite;
-}
-
-.news-desc {
-  font-size: 0.85rem;
-  color: #ddd;
-  margin-top: 0.3rem;
-}
-
-@keyframes ticker {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
-}
-
-@media screen and (max-width: 600px) {
-  .grid {
-    grid-template-columns: 1fr;
+/* RESPONSIVE TWEAKS */
+@media (max-width: 500px) {
+  h1 {
+    font-size: 1.4em;
   }
 
-  .extra {
-    min-width: unset;
-    flex: 1 1 100%;
+  #datetime {
+    font-size: 0.9em;
+  }
+
+  .bloc {
+    font-size: 0.95em;
+  }
+
+  #alertes,
+  marquee#news-ticker {
+    font-size: 0.8em;
   }
 }
