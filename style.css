@@ -1,50 +1,132 @@
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #f8f9fa;
+  padding: 0;
+  font-family: sans-serif;
+  background: #f2f7fb;
   color: #222;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
 }
 
-#dashboard {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-  padding: 10px;
-  gap: 10px;
+.container {
+  max-width: 1080px;
+  margin: auto;
+  padding: 1rem;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+h1 {
+  font-size: 1.8rem;
+  margin: 0;
+}
+
+#datetime {
+  font-size: 1rem;
+  margin-top: 0.5rem;
+  color: #444;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .bloc {
-  background-color: white;
-  padding: 10px;
+  background: white;
   border-radius: 8px;
-  box-shadow: 0 2px 4px #ccc;
-  font-size: 1.1rem;
+  padding: 1rem;
+  box-shadow: 0 0 6px rgba(0,0,0,0.1);
 }
 
-.large {
-  font-size: 1.3rem;
+.bloc h2 {
+  font-size: 1.2rem;
+  color: #003366;
+  margin-bottom: 0.5rem;
+}
+
+.destination {
+  margin-bottom: 0.7rem;
+  font-size: 0.95rem;
+}
+
+.horaire {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  font-size: 0.9rem;
+  margin-top: 0.2rem;
+  padding-left: 1rem;
 }
 
-.news-ticker {
-  background: #001f3f;
+.extras {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  justify-content: space-around;
+  text-align: center;
+}
+
+.extra {
+  background: #ffffff;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+  min-width: 260px;
+  flex: 1;
+}
+
+.velib-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.velib-block {
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.update {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.ticker {
+  background: #003366;
   color: white;
-  font-size: 1.1rem;
+  padding: 0.7rem 1rem;
+  font-size: 0.95rem;
+  border-radius: 5px;
   overflow: hidden;
-  white-space: nowrap;
 }
 
 .news-item {
+  white-space: nowrap;
   animation: ticker 20s linear infinite;
+}
+
+.news-desc {
+  font-size: 0.85rem;
+  color: #ddd;
+  margin-top: 0.3rem;
 }
 
 @keyframes ticker {
   0% { transform: translateX(100%); }
   100% { transform: translateX(-100%); }
+}
+
+@media screen and (max-width: 600px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .extra {
+    min-width: unset;
+    flex: 1 1 100%;
+  }
 }
