@@ -3,63 +3,43 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard Vincennes</title>
+  <title>Dashboard Transports – Vincennes</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="dashboard">
-
-    <!-- HEADER -->
-    <div id="header" class="bloc large">
+  <div class="container">
+    <header>
+      <h1>🚉 Dashboard Transports – Vincennes</h1>
       <div id="datetime">🕐 --:-- – 📅 --/--/----</div>
-      <div id="weather">🌤️ Chargement météo…</div>
-    </div>
+    </header>
 
-    <!-- RER A -->
-    <div id="rer" class="bloc">
-      <h2>🚆 RER A – Joinville-le-Pont</h2>
-      <div id="rer-list"></div>
-    </div>
+    <section class="grid">
+      <div class="bloc" id="bloc-Joinville-le-Pont">
+        <h2>Joinville-le-Pont</h2>
+        <div>Chargement...</div>
+      </div>
+      <div class="bloc" id="bloc-Hippodrome de Vincennes">
+        <h2>Hippodrome de Vincennes</h2>
+        <div>Chargement...</div>
+      </div>
+      <div class="bloc" id="bloc-École du Breuil">
+        <h2>École du Breuil</h2>
+        <div>Chargement...</div>
+      </div>
+    </section>
 
-    <!-- BUS JOINVILLE regroupés -->
-    <div id="bus-joinville" class="bloc">
-      <h2>🚌 Bus – Joinville-le-Pont</h2>
-      <div id="bus-joinville-list"></div>
-    </div>
+    <section class="extras">
+      <div id="weather" class="extra">🌤️ Météo : chargement…</div>
+      <div class="extra velib-group">
+        <div id="velib-vincennes" class="velib">Vélib Vincennes</div>
+        <div id="velib-breuil" class="velib">Vélib Breuil</div>
+        <div id="velib-update" class="update"></div>
+      </div>
+    </section>
 
-    <!-- BUS 77 & 201 -->
-    <div id="bus-vincennes" class="bloc">
-      <h2>🚌 Bus 77 – Hippodrome de Vincennes</h2>
-      <div id="bus-77-list"></div>
-      <h2>🚌 Bus 201 – École du Breuil</h2>
-      <div id="bus-201-list"></div>
-    </div>
-
-    <!-- VELIB -->
-    <div id="velib" class="bloc">
-      <h2>🚲 Stations Vélib’</h2>
-      <div id="velib-vincennes"></div>
-      <div id="velib-breuil"></div>
-      <div id="velib-update"></div>
-    </div>
-
-    <!-- COURSES -->
-    <div id="courses" class="bloc">
-      <h2>🏇 Prochaines courses</h2>
-      <div id="courses-list">Chargement…</div>
-    </div>
-
-    <!-- ALERTES TRAFIC -->
-    <div id="alerts" class="bloc">
-      <h2>🚨 Alertes trafic</h2>
-      <div id="alerts-list">Chargement…</div>
-    </div>
-
-    <!-- NEWS -->
-    <div id="news" class="bloc news-ticker">
-      <div id="news-ticker">📰 Chargement des actualités…</div>
-    </div>
-
+    <section class="ticker">
+      <div id="news-ticker">📰 Actualités : chargement…</div>
+    </section>
   </div>
 
   <script src="script.js"></script>
