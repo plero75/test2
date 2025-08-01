@@ -1,114 +1,79 @@
-diff --git a/style.css b/style.css
-index e363492c6ecc2f5034a2e0b2de3739a8308d3013..2e666c4a8ba0cdf765a8eae8eb02be68bdd48849 100644
---- a/style.css
-+++ b/style.css
-@@ -71,65 +71,59 @@ footer {
-   font-weight: bold;
-   font-size: 1.8em;
-   width: 36px;
-   height: 36px;
-   border-radius: 50%;
-   line-height: 36px;
-   text-align: center;
-   color: white;
- }
- .logo-rer { background: #d32029; }
- .logo-bus201 { background: #2c7a26; }
- .logo-bus77 { background: #0077c2; }
- 
- .directions { font-size: 0.9em; color: #444; flex-grow: 1; }
- .alert-banner {
-   background: #fff3cd;
-   color: #856404;
-   padding: 4px 8px;
-   border-radius: 5px;
-   margin-bottom: 8px;
-   font-weight: 600;
- }
- .schedules { font-size: 1em; line-height: 1.4; }
- 
- .stops-scroll {
--  margin-top: 0.5rem;
-+  overflow-x: auto;
-+  overflow-y: hidden;
-   white-space: nowrap;
--  overflow: hidden;
-   box-sizing: border-box;
--  border-top: 1px solid #ccc;
--  padding-top: 0.5rem;
--  font-size: 1rem;
-+  margin: 6px 0 12px 0;
-+  padding: 5px 6px 2px 6px;
-+  font-size: 1em;
-   color: #222;
-+  background: #f2f5fc;
-+  border-top: 1px solid #ccc;
-+  border-radius: 8px;
-+  scroll-behavior: smooth;
-   animation: scroll-left 25s linear infinite;
- }
- 
- @keyframes scroll-left {
-   0% { transform: translateX(100%); }
-   100% { transform: translateX(-100%); }
- }
- 
- a:focus, button:focus, .logo:focus {
-   outline: 2px solid #003366;
-   outline-offset: 2px;
- }
--.stops-scroll {
--  overflow-x: auto;
--  white-space: nowrap;
--  font-size: 1em;
--  margin: 6px 0 12px 0;
--  background: #f2f5fc;
--  padding: 5px 6px 2px 6px;
--  border-radius: 8px;
--  scroll-behavior: smooth;
--}
- .stops-scroll span {
-   margin-right: 0.9em;
-   font-weight: 500;
- }
- .schedules h3 {
-   margin: 12px 0 6px 0;
-   font-size: 1.1em;
-   color: #2b2b2b;
-   font-weight: 600;
- }
 
-#news-banner {
-  background: #1b2494;
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f2f4f8;
+  color: #333;
+}
+
+header, footer {
+  text-align: center;
+  padding: 1rem;
+  background-color: #002b55;
   color: white;
-  padding: 10px 20px;
+}
+
+h1 {
+  font-size: 1.8rem;
+  margin: 0;
+}
+
+.module-block, .transport-block {
+  margin: 1rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   font-size: 1.1rem;
-  font-weight: 500;
-.marquee-container {
-  width: 100%;
-  overflow: hidden;
-  white-space: nowrap;
-  border-top: 1px solid #ccc;
-  border-bottom: 1px solid #ccc;
-  background: #f8f8f8;
-  font-weight: bold;
-  padding: 6px;
 }
 
-.scrolling-line {
+.transport-block div {
+  padding: 0.3rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.transport-block div:last-child {
+  border-bottom: none;
+}
+
+#datetime {
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  color: #ddd;
+}
+
+footer {
+  font-size: 0.9rem;
+}
+
+@media screen and (max-width: 600px) {
+  .module-block, .transport-block {
+    margin: 0.5rem;
+    padding: 0.8rem;
+  }
+  h1 {
+    font-size: 1.3rem;
+  }
+}
+
+.badge {
   display: inline-block;
-  animation: scroll-left 20s linear infinite;
+  padding: 0.2em 0.6em;
+  font-size: 0.85em;
+  border-radius: 8px;
+  margin-right: 0.4em;
 }
 
-@keyframes scroll-left {
-  0% {
-    transform: translateX(100%);
-  }
-  100% {
-    transform: translateX(-100%);
-  }
+.badge.green {
+  background-color: #d4edda;
+  color: #155724;
 }
-
-.stop {
-  margin: 0 1em;
+.badge.red {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+.badge.orange {
+  background-color: #fff3cd;
+  color: #856404;
 }

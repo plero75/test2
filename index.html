@@ -1,54 +1,31 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Vincennes</title>
-  <link rel="stylesheet" href="style.css">
-  <script type="module" src="script.js" defer></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard Vincennes – Live</title>
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="script.js"></script>
 </head>
 <body>
-  <div id="dashboard">
-    <header>
-      <div id="logo-block">
-        <img src="logo-vincennes.png" alt="Hippodrome de Vincennes" id="logo">
-        <h1>Infos Transports & Météo</h1>
-      </div>
-      <div id="datetime"></div>
-    </header>
+  <header>
+    <h1>📍 Dashboard Vincennes</h1>
+    <div id="datetime"></div>
+  </header>
 
-    <main>
-      <section class="block" id="rer-block">
-        <h2>🚆 RER A – Joinville-le-Pont</h2>
-        <div id="rer-schedules" class="schedules"></div>
-        <div id="rer-a-stops" class="marquee-container"></div>
+  <section id="weather" class="module-block">⛅ Chargement météo...</section>
+  <section id="velib" class="module-block">🚲 Chargement Vélib’...</section>
+  <section id="news" class="module-block">📰 Chargement des actualités...</section>
 
-      </section>
+  <section id="transport">
+    <div class="transport-block" id="rer-a">🚆 RER A – Joinville-le-Pont</div>
+    <div class="transport-block" id="bus-77">🚌 Bus 77 – Hippodrome de Vincennes</div>
+    <div class="transport-block" id="bus-201">🚌 Bus 201 – École du Breuil</div>
+  </section>
 
-      <section class="block" id="bus77-block">
-        <h2>🚌 Bus 77 – Hippodrome de Vincennes</h2>
-        <div id="bus77-schedules" class="schedules"></div>
-      </section>
-
-      <section class="block" id="bus201-block">
-        <h2>🚌 Bus 201 – École du Breuil</h2>
-        <div id="bus201-schedules" class="schedules"></div>
-      </section>
-
-      <section class="block" id="weather-block">
-        <h2>🌤 Météo</h2>
-        <div id="weather">Chargement météo…</div>
-      </section>
-
-      <section class="block" id="news-block">
-        <h2>📰 Dernières actus</h2>
-        <div id="news-banner-content">Chargement…</div>
-      </section>
-    </main>
-
-    <footer>
-      <p>© 2025 Hippodrome de Vincennes – Données IDFM via PRIM</p>
-    </footer>
-  </div>
+  <footer>
+    <p>🧠 Projet Hippodrome Vincennes – Données temps réel PRIM, Open-Meteo, Vélib’</p>
+  </footer>
 </body>
 </html>
