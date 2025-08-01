@@ -71,7 +71,7 @@ async function fetchTransport() {
   for (const stop of stops) {
     const container = document.getElementById(stop.target);
     try {
-      const url = proxy + "/marketplace/stop-monitoring?MonitoringRef=" + stop.id;
+      const url = proxy + "?url=" + encodeURIComponent("https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=...");
       const res = await fetch(url);
       const data = await res.json();
       const visits = data.Siri.ServiceDelivery.StopMonitoringDelivery[0].MonitoredStopVisit;
