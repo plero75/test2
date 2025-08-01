@@ -113,24 +113,50 @@ async function fetchVelib() {
 fetchVelib();
 setInterval(fetchVelib, 60000);
 
-// 📰 Bandeau actu
-async function fetchNewsTicker() {
-  const res = await fetch("https://www.francetvinfo.fr/titres.rss");
-  const xml = await res.text();
-  const parser = new DOMParser();
-  const rss = parser.parseFromString(xml, "text/xml");
-  const items = rss.querySelectorAll("item");
+// --- Actus défilantes (FranceTV via RSS2JSON) ---
+let newsItems = [];
+let currentNewsIndex = 0;
 
-  const headlines = Array.from(items).slice(0, 3).map(item => {
-    const title = item.querySelector("title").textContent;
-    const desc = item.querySelector("description").textContent;
-    return `🗞 ${title} — ${desc}`;
-  });
-
-  document.getElementById("news-ticker").textContent = headlines.join("   •   ");
+async function fetchNewsTicker(containerId) {
+  const url = 'https://api.rss2json.com/v1/api.json?rss_url=https://www.francetvinfo.fr/titres.rss';
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+    const data = await response.json();
+    newsItems = data.items || [];
+    if (newsItems.length === 0) {
+      document.getElementById(containerId).innerHTML = '✅ Aucun article';
+      return;
+    }
+    currentNewsIndex = 0;
+    showNewsItem(containerId);
+  } catch (err) {
+    document.getElementById(containerId).textContent = '❌ Erreur actus';
+  }
 }
-fetchNewsTicker();
-setInterval(fetchNewsTicker, 60000);
+
+function showNewsItem(containerId) {
+  if (newsItems.length === 0) return;
+  const item = newsItems[currentNewsIndex];
+  const desc = item.description
+    ? item.description.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/ +/g, ' ').trim()
+    : '';
+  const shortDesc = desc.length > 220
+    ? desc.slice(0, 217).replace(/ [^ ]*$/, '') + "…"
+    : desc;
+
+  document.getElementById(containerId).innerHTML = `
+    <div class="news-item">
+      📰 <b>${item.title}</b>
+      <div class="news-desc">${shortDesc}</div>
+    </div>`;
+
+  currentNewsIndex = (currentNewsIndex + 1) % newsItems.length;
+  setTimeout(() => showNewsItem(containerId), 9000);
+}
+
+// Lancement automatique au chargement
+fetchNewsTicker('news-ticker');
 
 // 🚨 Alertes trafic
 async function fetchAlertes() {
