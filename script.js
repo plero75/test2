@@ -1,64 +1,91 @@
-// Exemple simplifié – les appels dynamiques réels seront intégrés selon les API PRIM, Open-Meteo, Vélib etc.
+// -------------------- PARAMÈTRES -------------------- //
+const proxy = "https://ratp-proxy.hippodrome-proxy42.workers.dev?url=";
+const stations = [
+  {
+    id: "STIF:StopArea:SP:43135:",
+    name: "Joinville-le-Pont",
+    lines: ["C01742", "C02251", "C01130", "C01135", "C01137", "C01139", "C01141", "C01219", "C01260", "C01399"]
+  },
+  {
+    id: "STIF:StopArea:SP:463641:",
+    name: "Hippodrome de Vincennes",
+    lines: ["C02251"]
+  },
+  {
+    id: "STIF:StopArea:SP:463644:",
+    name: "École du Breuil",
+    lines: ["C01219"]
+  }
+];
+
+// -------------------- DÉMARRAGE -------------------- //
 document.addEventListener("DOMContentLoaded", () => {
-  updateDateTime();
-  fetchWeather();
-  fetchNews();
-  fetchVelib();
-  // fetchRER(); // simulation
-  // fetchBusJoinville();
+  stations.forEach(station => {
+    getDepartures(station.id, station.name, station.lines);
+  });
 });
 
-function updateDateTime() {
-  const now = new Date();
-  document.getElementById("datetime").textContent =
-    `🕐 ${now.toLocaleTimeString("fr-FR")} – 📅 ${now.toLocaleDateString("fr-FR")}`;
-}
-
-async function fetchWeather() {
-  const url = "https://api.open-meteo.com/v1/forecast?latitude=48.84&longitude=2.45&current=temperature_2m&timezone=Europe%2FParis";
-  const res = await fetch(url);
-  const data = await res.json();
-  document.getElementById("weather").textContent = `🌡️ ${data.current.temperature_2m} °C`;
-}
-
-async function fetchNews() {
+// -------------------- DÉPARTS -------------------- //
+async function getDepartures(monitoringRef, stationName, lineList) {
+  const url = `${proxy}https://prim.iledefrance-mobilites.fr/marketplace/v2/stop-monitoring?MonitoringRef=${monitoringRef}`;
   try {
-    const res = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent("https://www.francetvinfo.fr/titres.rss"));
+    const res = await fetch(url);
     const data = await res.json();
-    const parser = new DOMParser();
-    const xml = parser.parseFromString(data.contents, "text/xml");
-    const items = xml.querySelectorAll("item");
-    let news = [];
-    for (let i = 0; i < Math.min(5, items.length); i++) {
-      news.push(items[i].querySelector("title").textContent);
-    }
-    document.getElementById("news-ticker").textContent = news.join(" ⚡ ");
+    const visites = data.Siri.ServiceDelivery.StopMonitoringDelivery[0].MonitoredStopVisit;
+
+    const resultByLine = {};
+
+    visites.forEach(v => {
+      const monitored = v.MonitoredVehicleJourney;
+      const lineRef = monitored.LineRef;
+      const dir = monitored.DestinationName;
+      const expected = new Date(monitored.MonitoredCall.ExpectedArrivalTime);
+      const aimed = new Date(monitored.MonitoredCall.AimedArrivalTime);
+      const delayMin = Math.round((expected - aimed) / 60000);
+      const now = new Date();
+      const remaining = Math.round((expected - now) / 60000);
+      const status = monitored.Delay ? "⚠️ Retardé" : "🟢 À l'heure";
+      const stops = monitored.MonitoredCall.StopPointRef || "N/A";
+
+      if (!resultByLine[lineRef]) resultByLine[lineRef] = {};
+      if (!resultByLine[lineRef][dir]) resultByLine[lineRef][dir] = [];
+
+      resultByLine[lineRef][dir].push({
+        aimed,
+        remaining,
+        status,
+        stops
+      });
+    });
+
+    renderDepartures(stationName, resultByLine);
   } catch (e) {
-    document.getElementById("news-ticker").textContent = "❌ Actu indisponible.";
+    console.error(`Erreur récupération pour ${stationName}`, e);
   }
 }
 
-async function fetchVelib() {
-  const urls = [
-    { id: "12163", el: "velib-vincennes", name: "Hippodrome Paris-Vincennes" },
-    { id: "12128", el: "velib-breuil", name: "Pyramide - Ecole du Breuil" }
-  ];
+// -------------------- AFFICHAGE -------------------- //
+function renderDepartures(stationName, linesData) {
+  const container = document.createElement("div");
+  container.className = "station-block";
 
-  for (let s of urls) {
-    try {
-      const url = `https://velib-metropole-opendata.smoove.pro/opendata/Velib_Metropole/station_status.json`;
-      const res = await fetch(url);
-      const data = await res.json();
-      const station = data.data.stations.find(st => st.stationCode === s.id);
-      if (!station) throw new Error("Station non trouvée");
-      document.getElementById(s.el).innerHTML = `📍 ${s.name}<br>
-        🚲 ${station.num_bikes_available_types?.[0]?.mechanical || 0} mécaniques | 🔌 ${station.num_bikes_available_types?.[1]?.ebike || 0} électriques<br>
-        🅿️ ${station.num_docks_available} bornes`;
-    } catch (e) {
-      document.getElementById(s.el).textContent = `❌ Erreur sur station ${s.name}`;
-    }
-  }
+  const title = document.createElement("h2");
+  title.innerHTML = `🚉 <span>${stationName}</span>`;
+  container.appendChild(title);
 
-  document.getElementById('velib-update').textContent =
-    "Mise à jour : " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  Object.entries(linesData).forEach(([line, dirs]) => {
+    Object.entries(dirs).forEach(([dir, passages]) => {
+      const dirBlock = document.createElement("div");
+      dirBlock.innerHTML = `<strong>${line}</strong> → <strong>${dir}</strong>`;
+      passages.slice(0, 4).forEach(p => {
+        const row = document.createElement("div");
+        row.className = "passage-row";
+        row.innerHTML = `🕐 ${p.aimed.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ⏳ ${p.remaining} min – ${p.status}`;
+        dirBlock.appendChild(row);
+      });
+      container.appendChild(dirBlock);
+    });
+  });
+
+  document.body.appendChild(container);
 }
