@@ -3,30 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🚉 Dashboard Transports – Vincennes</title>
+  <title>Dashboard Transports Vincennes</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header>
-    <h1>🚉 Dashboard Transports – Vincennes</h1>
-    <div id="datetime"></div>
+    <h1>🟢 Dashboard Transports – Hippodrome Vincennes</h1>
+    <div id="datetime">Chargement de l'heure…</div>
   </header>
 
-  <main class="grid">
-    <div id="news-ticker" class="ticker-bar">Chargement des actualités...</div>
-    
-    <section id="rer-a" class="bloc"></section>
-    <section id="bus-joinville" class="bloc"></section>
-    <section id="bus-vincennes" class="bloc"></section>
-    <section id="bus-breuil" class="bloc"></section>
-    <section id="weather" class="bloc"></section>
-    <section id="velib" class="bloc"></section>
-  </main>
+  <div id="alertes"></div>
+  <div id="news-ticker"></div>
 
-  <footer>
-    <div id="alertes" class="alertes"></div>
-    <marquee id="news-marquee" class="ticker"></marquee>
-  </footer>
+  <main class="grid">
+    <section id="rer" class="bloc"><h3>🚆 RER A – Joinville-le-Pont</h3></section>
+    <section id="bus" class="bloc"><h3>🚌 Bus – Joinville & Vincennes</h3></section>
+    <section id="velib" class="bloc"><h3>🚲 Vélib'</h3></section>
+    <section id="meteo" class="bloc"><h3>🌤️ Météo</h3></section>
+    <section id="courses" class="bloc"><h3>🐴 Prochaines courses</h3></section>
+  </main>
 
   <script src="script.js"></script>
 </body>
