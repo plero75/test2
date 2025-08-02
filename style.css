@@ -42,9 +42,8 @@ main.grid {
   flex-grow: 1;
 }
 
-/* BLOCS (cards) */
-.bloc,
-.dashboard-block {
+/* CARDS */
+.bloc {
   background: white;
   padding: 1em;
   border-radius: 10px;
@@ -55,12 +54,10 @@ main.grid {
   justify-content: flex-start;
 }
 
-.bloc p,
-.dashboard-block p {
+.bloc p {
   margin: 0.4em 0;
 }
 
-/* TRANSPORTS */
 .destination {
   margin-top: 0.6em;
 }
@@ -87,37 +84,33 @@ main.grid {
 }
 
 /* BANDEAU ACTU */
-#news-ticker {
-  background-color: #052c53;
+marquee.ticker {
+  background: #0c1c2c;
   color: white;
-  padding: 6px 14px;
-  font-size: 0.95rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  border-radius: 6px;
-  margin-top: 10px;
-  min-height: 3.2em;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
+  padding: 0.6em 1em;
+  font-size: 0.85em;
+  font-style: italic;
 }
 
-.news-item {
-  animation: slideIn 0.5s ease-in-out;
+/* ETATS */
+.badge {
+  display: inline-block;
+  font-size: 0.75em;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 5px;
+  vertical-align: middle;
 }
+.badge.cancelled { background-color: #e74c3c; color: white; animation: pulse 1s infinite; }
+.badge.late { background-color: #f39c12; color: white; }
+.badge.imminent { background-color: #2ecc71; color: white; }
 
-.news-desc {
-  font-weight: 400;
-  display: block;
-  margin-top: 2px;
-  font-size: 0.8rem;
-  opacity: 0.9;
-}
-
-@keyframes slideIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+/* ANIMATION */
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
 }
 
 /* RESPONSIVE */
@@ -125,17 +118,13 @@ main.grid {
   h1 {
     font-size: 1.4em;
   }
-
   #datetime {
     font-size: 0.9em;
   }
-
-  .bloc, .dashboard-block {
+  .bloc {
     font-size: 0.95em;
   }
-
-  #alertes,
-  #news-ticker {
+  #alertes, marquee.ticker {
     font-size: 0.8em;
   }
 }
