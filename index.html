@@ -1,37 +1,45 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Transports Vincennes</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard Vincennes</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>🚉 RER A – Joinville</h1>
-        <div id="rerA"></div>
+  <main>
 
-        <h1>🚌 Bus – Joinville</h1>
-        <div id="busJoinville"></div>
+    <!-- Date / heure -->
+    <div id="datetime" class="card">🕐 Chargement de l'heure…</div>
 
-        <h1>🚌 Bus – Hippodrome</h1>
-        <div id="busHippodrome"></div>
+    <!-- Météo -->
+    <div id="weather" class="card">🌦️ Météo en cours…</div>
 
-        <h1>🌡️ Météo</h1>
-        <div id="weather"></div>
+    <!-- Vélib -->
+    <div id="velib" class="card">🚲 Chargement des stations Vélib’…</div>
 
-        <h1>🚲 Vélib’</h1>
-        <div id="velib"></div>
+    <!-- RER A -->
+    <h2>🚆 RER A – Joinville-le-Pont</h2>
+    <div id="rerA" class="card">Chargement des horaires RER A…</div>
 
-        <h1>🏇 Courses</h1>
-        <div id="races"></div>
+    <!-- Bus Joinville -->
+    <h2>🚌 Bus – Joinville-le-Pont</h2>
+    <div id="busJoinville" class="card">Chargement des horaires Bus…</div>
 
-        <h1>🟢 Alertes Trafic</h1>
-        <div id="alerts"></div>
-    </div>
-    <footer>
-        <p>© plero75.github.io – Données temps réel IDFM, Vélib’, Open-Meteo & Letrot</p>
-    </footer>
-    <script src="script.js"></script>
+    <!-- Bus Hippodrome -->
+    <h2>🚌 Bus – Hippodrome de Vincennes</h2>
+    <div id="busHippodrome" class="card">Chargement des horaires Bus…</div>
+
+    <!-- Courses hippiques -->
+    <h2>🏇 Prochaines courses</h2>
+    <div id="races" class="card">Chargement des infos courses…</div>
+
+    <!-- Alertes trafic -->
+    <h2>⚠️ Alertes trafic</h2>
+    <div id="alerts" class="card">Chargement des alertes trafic…</div>
+
+  </main>
+
+  <script src="script.js"></script>
 </body>
 </html>
