@@ -1,24 +1,52 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard Hippodrome</title>
+  <title>Dashboard Vincennes</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header>
-    <h1>🟢 Dashboard Hippodrome Vincennes</h1>
+    <h1>🟢 Dashboard Hippodrome de Vincennes</h1>
     <div id="datetime"></div>
   </header>
 
-  <section id="weather" class="module"></section>
-  <section id="alerts" class="module"></section>
-  <section id="rerA" class="module"></section>
-  <section id="busJoinville" class="module"></section>
-  <section id="busHippodrome" class="module"></section>
-  <section id="velib" class="module"></section>
-  <section id="races" class="module"></section>
+  <section>
+    <h2>🌤 Météo</h2>
+    <div id="weather" class="bloc">Chargement météo...</div>
+  </section>
+
+  <section>
+    <h2>🚲 Stations Vélib’</h2>
+    <div id="velib" class="bloc">Chargement Vélib...</div>
+  </section>
+
+  <section>
+    <h2>🚆 RER A – Joinville-le-Pont</h2>
+    <div id="rerA" class="bloc">Chargement RER A...</div>
+  </section>
+
+  <section>
+    <h2>🚌 Bus – Joinville-le-Pont</h2>
+    <div id="busJoinville" class="bloc">Chargement bus...</div>
+  </section>
+
+  <section>
+    <h2>🚌 Bus – Hippodrome de Vincennes</h2>
+    <div id="busHippodrome" class="bloc">Chargement bus...</div>
+  </section>
+
+  <section>
+    <h2>📢 Alertes Trafic</h2>
+    <div id="alerts" class="bloc">Chargement alertes...</div>
+  </section>
+
+  <section>
+    <h2>🏇 Courses Hippiques</h2>
+    <div id="races" class="bloc">Chargement courses...</div>
+  </section>
 
   <script src="script.js"></script>
 </body>
