@@ -5,25 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🚉 Dashboard Transports – Vincennes</title>
   <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet" />
 </head>
 <body>
   <header>
     <h1>🚉 Dashboard Transports – Vincennes</h1>
-    <div id="datetime" class="dashboard-block"></div>
+    <div id="datetime"></div>
   </header>
 
   <main class="grid">
     <div id="news-ticker" class="ticker-bar">Chargement des actualités...</div>
-
-    <section id="bus-joinville" class="dashboard-block"></section>
-    <section id="bus-vincennes" class="dashboard-block"></section>
-    <section id="bus-breuil" class="dashboard-block"></section>
-
-    <section id="weather" class="dashboard-block"></section>
-    <section id="velib" class="dashboard-block"></section>
-    <section id="alertes" class="dashboard-block"></section>
+    
+    <section id="rer-a" class="bloc"></section>
+    <section id="bus-joinville" class="bloc"></section>
+    <section id="bus-vincennes" class="bloc"></section>
+    <section id="bus-breuil" class="bloc"></section>
+    <section id="weather" class="bloc"></section>
+    <section id="velib" class="bloc"></section>
   </main>
+
+  <footer>
+    <div id="alertes" class="alertes"></div>
+    <marquee id="news-marquee" class="ticker"></marquee>
+  </footer>
 
   <script src="script.js"></script>
 </body>
