@@ -123,6 +123,55 @@ async function fetchRER() {
   }
 }
 
+async function fetchBusJoinvilleStyled() {
+  const stopId = "STIF:StopArea:SP:43135:";
+  const container = document.getElementById("bus-joinville");
+  const alertContainer = document.getElementById("bus-alerts");
+
+  try {
+    const url = PROXY_BASE + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=${stopId}`);
+    const res = await fetch(url);
+    const data = await res.json();
+    const visits = data.Siri?.ServiceDelivery?.StopMonitoringDelivery?.[0]?.MonitoredStopVisit || [];
+
+    const byLine = {};
+    visits.forEach(v => {
+      const line = v.MonitoredVehicleJourney.LineRef.value.split(":").pop();
+      const dest = v.MonitoredVehicleJourney.DestinationName[0].value;
+      const key = `${line}||${dest}`;
+      if (!byLine[key]) byLine[key] = [];
+      if (byLine[key].length < 2) byLine[key].push(v);
+    });
+
+    container.innerHTML = Object.entries(byLine).map(([key, visits]) => {
+      const [line, dest] = key.split("||");
+      const times = visits.map(v => {
+        const time = new Date(v.MonitoredVehicleJourney.MonitoredCall.ExpectedArrivalTime);
+        const h = time.getHours();
+        const m = time.getMinutes().toString().padStart(2, "0");
+        const badge = v.MonitoredVehicleJourney.MonitoredCall.Extensions?.[0]?.DepartureStatus === "last" ? "🔴 dernier bus" : "";
+        return `<span>${h}h${m} ${badge}</span>`;
+      }).join("");
+
+      return `
+        <div class="bus-line">
+          <div class="left">
+            <span class="bus-badge">${line}</span>
+            <span>${dest}</span>
+          </div>
+          <div class="bus-times">${times}</div>
+        </div>
+      `;
+    }).join("");
+
+    alertContainer.innerHTML = `ℹ️ Aucune alerte trafic active.`;
+  } catch (err) {
+    container.textContent = "❌ Données indisponibles";
+    console.error("[fetchBusJoinvilleStyled] erreur :", err);
+  }
+}
+
+
 async function fetchBus(containerId, stopId) {
   try {
     const url = PROXY_BASE + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=${stopId}`);
