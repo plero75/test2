@@ -1,4 +1,5 @@
 const VELIB_IDS = ["35115", "35027", "35028"];
+const PROXY_BASE = "https://ratp-proxy.hippodrome-proxy42.workers.dev/?url=";
 
 function groupAndRender(visits, maxItems = 3) {
   console.log("[groupAndRender] visits:", visits);
@@ -80,7 +81,8 @@ async function fetchRaces() {
 
 async function fetchAlerts() {
   try {
-    const res = await fetch("https://ratp-proxy.hippodrome-proxy42.workers.dev/marketplace/navitia/general-message");
+    const url = PROXY_BASE + encodeURIComponent("https://prim.iledefrance-mobilites.fr/marketplace/navitia/general-message");
+    const res = await fetch(url);
     const data = await res.json();
     console.log("[fetchAlerts]", data);
     const alerts = data.general_messages || [];
@@ -111,10 +113,11 @@ async function fetchNews() {
 async function fetchRER() {
   const stopId = "STIF:StopArea:SP:43135:";
   try {
-    const res = await fetch(`https://ratp-proxy.hippodrome-proxy42.workers.dev/marketplace/stop-monitoring?MonitoringRef=${stopId}`);
+    const url = PROXY_BASE + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=${stopId}`);
+    const res = await fetch(url);
     const data = await res.json();
     console.log("[fetchRER]", data);
-    const visits = data.Siri.ServiceDelivery.StopMonitoringDelivery[0].MonitoredStopVisit || [];
+    const visits = data.Siri?.ServiceDelivery?.StopMonitoringDelivery?.[0]?.MonitoredStopVisit || [];
     document.getElementById("rerA").innerHTML = groupAndRender(visits);
   } catch (err) {
     console.error("[fetchRER] Erreur:", err);
@@ -124,10 +127,11 @@ async function fetchRER() {
 
 async function fetchBus(containerId, stopId) {
   try {
-    const res = await fetch(`https://ratp-proxy.hippodrome-proxy42.workers.dev/marketplace/stop-monitoring?MonitoringRef=${stopId}`);
+    const url = PROXY_BASE + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=${stopId}`);
+    const res = await fetch(url);
     const data = await res.json();
     console.log(`[fetchBus] ${containerId}`, data);
-    const visits = data.Siri.ServiceDelivery.StopMonitoringDelivery[0].MonitoredStopVisit || [];
+    const visits = data.Siri?.ServiceDelivery?.StopMonitoringDelivery?.[0]?.MonitoredStopVisit || [];
     const lines = {};
     visits.forEach(v => {
       const line = v.MonitoredVehicleJourney.LineRef.value.split(":").pop();
