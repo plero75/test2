@@ -65,37 +65,42 @@ async function fetchAlerts() {
   }
 }
 
-async function fetchLineAlerts(lineId, containerId) {
-  try {
-    const url = PROXY_BASE + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/v2/navitia/line_reports/lines/${lineId}`);
-    const res = await fetch(url);
-    const data = await res.json();
-    console.log(`[fetchLineAlerts] ${lineId}`, data);
+function fetchLineAlerts(lineCode) {
+  const url = `${proxyBase}/marketplace/v2/navitia/line_reports/lines/${lineCode}`;
+  fetch(url)
+    .then(res => res.json())
+    .then(data => {
+      console.log("[fetchLineAlerts]", lineCode, data);
+      const disruptions = data.disruptions || [];
+      const container = document.getElementById("alerts");
+      if (!container) return;
 
-    const disruptions = data.disruptions || [];
+      // Réinitialise le conteneur à chaque appel
+      container.innerHTML = "";
 
-    const icons = {
-      "incident": "🚨",
-      "work": "🚧",
-      "information": "ℹ️",
-      "other": "⚠️"
-    };
+      if (disruptions.length === 0) {
+        const okDiv = document.createElement("div");
+        okDiv.className = "alert-ok";
+        okDiv.innerHTML = `✅ Aucun incident signalé`;
+        container.appendChild(okDiv);
+        return;
+      }
 
-    document.getElementById(containerId).innerHTML = disruptions.length
-      ? disruptions.map(d => {
-          const type = d.severity?.effect ?? "other";
-          const emoji = icons[type] || "⚠️";
-          const title = d.title?.text ?? "Alerte";
-          const message = d.message?.text ?? "Pas de détail.";
-          return `<div class="card">${emoji} <strong>${title}</strong><br>${message}</div>`;
-        }).join("")
-      : "✅ Aucun incident signalé";
-  } catch (err) {
-    console.error(`[fetchLineAlerts] Erreur pour ${lineId}`, err);
-    document.getElementById(containerId).textContent = "❌ Erreur de chargement";
-  }
+      disruptions.forEach(d => {
+        const message = d.messages?.[0]?.text || d.description || "Pas de détail";
+        const div = document.createElement("div");
+        div.className = "alert-item";
+        div.innerHTML = `⚠️ ${message}`;
+        container.appendChild(div);
+      });
+    })
+    .catch(err => console.error("Erreur fetchLineAlerts", lineCode, err));
 }
 
+// Appels aux lignes concernées
+fetchLineAlerts("line:IDFM:C01742"); // RER A
+fetchLineAlerts("line:IDFM:C02251"); // Bus 77
+fetchLineAlerts("line:IDFM:C01219"); // Bus 201
 
 async function fetchNews() {
   try {
