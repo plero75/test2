@@ -1,22 +1,42 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>Dashboard Vincennes</title>
-  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="datetime"></div>
-  <div id="weather"></div>
-  <div id="rerA"></div>
-  <div id="busJoinville"></div>
-  <div id="busHippodrome"></div>
-  <div id="velib-vincennes"></div>
-  <div id="velib-breuil"></div>
-  <div id="alerts"></div>
-  <div id="news"></div>
-  <div id="races"></div>
+
+  <h2>🌤 Météo</h2>
+  <div id="weather">Chargement météo...</div>
+
+  <h2>🚲 Vélib’</h2>
+  <div id="velib-vincennes">Chargement Vélib Vincennes...</div>
+  <div id="velib-breuil">Chargement Vélib Breuil...</div>
+  <div id="velib-update"></div>
+
+  <h2>🚆 RER A – Joinville-le-Pont</h2>
+  <div id="rerA">Chargement RER...</div>
+
+  <h2>🚌 Bus – Joinville-le-Pont</h2>
+  <div id="busJoinville">Chargement bus...</div>
+
+  <h2>🚌 Bus – Hippodrome</h2>
+  <div id="busHippodrome">Chargement bus hippodrome...</div>
+
+  <h2>⚠️ Alertes Trafic</h2>
+  <div id="alerts">Chargement alertes...</div>
+
+  <h2>🏇 Prochaines courses</h2>
+  <div id="races">Chargement courses...</div>
+
+  <h2>📰 Actu France Info</h2>
+  <div id="news">Chargement actu...</div>
+
+  <h2>🛠 Console de debug</h2>
+  <div id="log-console" style="background:#f0f0f0; padding:10px; font-size:0.8rem;"></div>
+
   <script src="script.js"></script>
 </body>
 </html>
