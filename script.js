@@ -116,6 +116,84 @@ const joinvilleLines = [
   "line:IDFM:C01644",
   "line:IDFM:C01760"
 ];
+async function fetchJoinvilleBusTimes() {
+  const stopId = "STIF:StopArea:SP:43135:";
+  const proxyBase = "https://ratp-proxy.hippodrome-proxy42.workers.dev";
+  const url = `${proxyBase}/?url=${encodeURIComponent("https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=" + stopId)}`;
+
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    const visits = data.Siri?.ServiceDelivery?.StopMonitoringDelivery?.[0]?.MonitoredStopVisit || [];
+
+    const byLine = {};
+
+    visits.forEach(v => {
+      const lineRef = v.MonitoredVehicleJourney.LineRef.value.split(":").pop(); // ex: C02251
+      const dest = v.MonitoredVehicleJourney.DestinationName[0].value;
+      const key = `${lineRef}_${dest}`;
+
+      if (!byLine[key]) byLine[key] = [];
+      byLine[key].push(v);
+    });
+
+    for (const key in byLine) {
+      const [code, dest] = key.split("_");
+      const elId = {
+        "C02251": "times-77",
+        "C01130": "times-101",
+        "C01135": "times-106",
+        "C01137": "times-108",
+        "C01399": "times-N33"
+      }[code];
+
+      if (!elId) continue;
+
+      const container = document.getElementById(elId);
+      if (!container) continue;
+
+      const blocks = byLine[key]
+        .slice(0, 2)
+        .map(v => {
+          const call = v.MonitoredVehicleJourney.MonitoredCall;
+          const expected = new Date(call.ExpectedArrivalTime);
+          const scheduled = new Date(call.AimedArrivalTime);
+          const now = new Date();
+          const remaining = Math.round((expected - now) / 60000);
+          const delayMin = Math.round((expected - scheduled) / 60000);
+          const isCancelled = v.MonitoredVehicleJourney?.VehicleStatus === "cancelled";
+          const isImminent = remaining <= 1;
+          const isLast = v.Extensions?.IsLastJourneyOfTheDay;
+
+          let html = `<div class="time-block">`;
+
+          html += `<span class="hour">🕒 ${expected.toLocaleTimeString("fr-FR", {hour:'2-digit', minute:'2-digit'})}</span>`;
+          html += ` – <span>${remaining} min</span>`;
+
+          if (isCancelled) html += ` ❌`;
+          else if (delayMin > 2) html += ` 🔴 +${delayMin} min`;
+          else if (isImminent) html += ` 🟢 imminent`;
+
+          if (isLast) html += `<br><span class="notice-block red">Dernier passage</span>`;
+          if (v.Extensions?.IsFirstJourneyOfTheDay) html += `<br><span class="notice-block">Premier passage</span>`;
+
+          html += `</div>`;
+          return html;
+        });
+
+      container.innerHTML = blocks.join("") || `<div class="notice-block">⏳ Pas de passage prochainement</div>`;
+    }
+
+  } catch (err) {
+    console.error("Erreur fetchJoinvilleBusTimes:", err);
+  }
+}
+
+// Lancer à l'arrivée de la page
+document.addEventListener("DOMContentLoaded", () => {
+  fetchJoinvilleBusTimes();
+  setInterval(fetchJoinvilleBusTimes, 60 * 1000); // actualise chaque minute
+});
 
 function fetchAllJoinvilleAlerts() {
   const container = document.getElementById("alerts");
