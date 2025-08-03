@@ -51,7 +51,7 @@ async function fetchVelib(url, containerId) {
   }
 }
 
-}
+ 
 
 async function fetchRaces() {
   try {
