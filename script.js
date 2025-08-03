@@ -1,19 +1,7 @@
 const VELIB_IDS = ["35115", "35027", "35028"];
 const PROXY_BASE = "https://ratp-proxy.hippodrome-proxy42.workers.dev/?url=";
 
-document.addEventListener("DOMContentLoaded", () => {
-  updateDateTime();
-  fetchWeather();
-  fetchVelibDirect('https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/velib-disponibilite-en-temps-reel/exports/json?lang=fr&qv1=(12163)&timezone=Europe%2FParis', 'velib-vincennes');
-  fetchVelibDirect('https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/velib-disponibilite-en-temps-reel/exports/json?lang=fr&qv1=(12128)&timezone=Europe%2FParis', 'velib-breuil');
-  fetchRaces();
-  fetchAlerts();
-  fetchNews();
-  fetchRER();
-  fetchBus("busJoinville", "STIF:StopArea:SP:43135:");
-  fetchBus("busHippodrome", "STIF:StopArea:SP:463641:");
-  setInterval(updateDateTime, 10000);
-});
+
 
 function updateDateTime() {
   const now = new Date();
@@ -150,3 +138,16 @@ function groupAndRender(visits, maxItems = 3) {
       }).join("<br>")}
     </div>`).join("");
 }
+document.addEventListener("DOMContentLoaded", () => {
+  updateDateTime();
+  fetchWeather();
+  fetchVelibDirect('https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/velib-disponibilite-en-temps-reel/exports/json?lang=fr&qv1=(12163)&timezone=Europe%2FParis', 'velib-vincennes');
+  fetchVelibDirect('https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/velib-disponibilite-en-temps-reel/exports/json?lang=fr&qv1=(12128)&timezone=Europe%2FParis', 'velib-breuil');
+  fetchRaces();
+  fetchAlerts();
+  fetchNews();
+  fetchRER();
+  fetchBus("busJoinville", "STIF:StopArea:SP:43135:");
+  fetchBus("busHippodrome", "STIF:StopArea:SP:463641:");
+  setInterval(updateDateTime, 10000);
+});
