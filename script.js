@@ -4,7 +4,8 @@ const PROXY_BASE = "https://ratp-proxy.hippodrome-proxy42.workers.dev/?url=";
 document.addEventListener("DOMContentLoaded", () => {
   updateDateTime();
   fetchWeather();
-  fetchVelib();
+  fetchVelibDirect('https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/velib-disponibilite-en-temps-reel/exports/json?lang=fr&qv1=(12163)&timezone=Europe%2FParis', 'velib-vincennes');
+  fetchVelibDirect('https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/velib-disponibilite-en-temps-reel/exports/json?lang=fr&qv1=(12128)&timezone=Europe%2FParis', 'velib-breuil');
   fetchRaces();
   fetchAlerts();
   fetchNews();
@@ -30,15 +31,26 @@ async function fetchWeather() {
   }
 }
 
-async function fetchVelib() {
+// --- Vélib (2 stations) ---
+async function fetchVelib(url, containerId) {
   try {
-    const res = await fetch("https://velib-metropole-opendata.smoove.pro/opendata/Velib_Metropole/station_information.json");
-    const data = await res.json();
-    const stations = data.data.stations.filter(s => VELIB_IDS.includes(s.station_id));
-    document.getElementById("velib").innerHTML = stations.map(s => `<div class="card">${s.name}</div>`).join("");
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+    const stations = await response.json();
+    const s = stations[0];
+    document.getElementById(containerId).innerHTML = `
+      <div class="velib-block">
+        📍 ${s.name}<br>
+        🚲 ${s.numbikesavailable} mécaniques&nbsp;|&nbsp;🔌 ${s.ebike} électriques<br>
+        🅿️ ${s.numdocksavailable} bornes
+      </div>
+    `;
+    document.getElementById('velib-update').textContent = 'Mise à jour : ' + (new Date()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
   } catch (err) {
-    document.getElementById("velib").textContent = "Données Vélib' indisponibles";
+    document.getElementById(containerId).innerHTML = '❌ Erreur Vélib’';
   }
+}
+
 }
 
 async function fetchRaces() {
