@@ -1,8 +1,6 @@
 const VELIB_IDS = ["35115", "35027", "35028"];
 const PROXY_BASE = "https://ratp-proxy.hippodrome-proxy42.workers.dev/?url=";
 
-
-
 function updateDateTime() {
   const now = new Date();
   document.getElementById("datetime").textContent =
@@ -19,7 +17,6 @@ async function fetchWeather() {
   }
 }
 
-// --- Vélib (2 stations) ---
 async function fetchVelib(url, containerId) {
   try {
     const response = await fetch(url);
@@ -38,8 +35,6 @@ async function fetchVelib(url, containerId) {
     document.getElementById(containerId).innerHTML = '❌ Erreur Vélib’';
   }
 }
-
- 
 
 async function fetchRaces() {
   try {
@@ -66,7 +61,8 @@ async function fetchAlerts() {
 }
 
 function fetchLineAlerts(lineCode) {
-  const url = `${proxyBase}/marketplace/v2/navitia/line_reports/lines/${lineCode}`;
+  const url = PROXY_BASE + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/v2/navitia/line_reports/lines/${lineCode}`);
+  console.log(`[fetchLineAlerts] Appel URL : ${url}`);
   fetch(url)
     .then(res => res.json())
     .then(data => {
@@ -75,7 +71,6 @@ function fetchLineAlerts(lineCode) {
       const container = document.getElementById("alerts");
       if (!container) return;
 
-      // Réinitialise le conteneur à chaque appel
       container.innerHTML = "";
 
       if (disruptions.length === 0) {
@@ -97,10 +92,59 @@ function fetchLineAlerts(lineCode) {
     .catch(err => console.error("Erreur fetchLineAlerts", lineCode, err));
 }
 
-// Appels aux lignes concernées
-fetchLineAlerts("line:IDFM:C01742"); // RER A
-fetchLineAlerts("line:IDFM:C02251"); // Bus 77
-fetchLineAlerts("line:IDFM:C01219"); // Bus 201
+const joinvilleLines = [
+  "line:IDFM:C01742",
+  "line:IDFM:C02251",
+  "line:IDFM:C01219",
+  "line:IDFM:C01130",
+  "line:IDFM:C01135",
+  "line:IDFM:C01137",
+  "line:IDFM:C01139",
+  "line:IDFM:C01260",
+  "line:IDFM:C01399",
+  "line:IDFM:C01502",
+  "line:IDFM:C01365",
+  "line:IDFM:C01644",
+  "line:IDFM:C01760"
+];
+
+function fetchAllJoinvilleAlerts() {
+  const container = document.getElementById("alerts");
+  if (!container) return;
+  container.innerHTML = "";
+
+  let found = false;
+
+  joinvilleLines.forEach(lineCode => {
+    const url = PROXY_BASE + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/v2/navitia/line_reports/lines/${lineCode}`);
+    console.log(`[fetchAllJoinvilleAlerts] Ligne ${lineCode} → ${url}`);
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        const disruptions = data.disruptions || [];
+        if (disruptions.length > 0) found = true;
+
+        disruptions.forEach(d => {
+          const message = d.messages?.[0]?.text || d.description || "Pas de détail";
+          const div = document.createElement("div");
+          div.className = "alert-item";
+          div.innerHTML = `⚠️ ${message}`;
+          container.appendChild(div);
+        });
+      })
+      .catch(err => console.error(`[fetchAllJoinvilleAlerts] ${lineCode}`, err));
+  });
+
+  setTimeout(() => {
+    if (!found && container.innerHTML.trim() === "") {
+      console.log("[fetchAllJoinvilleAlerts] Aucune alerte trouvée");
+      const okDiv = document.createElement("div");
+      okDiv.className = "alert-ok";
+      okDiv.innerHTML = `✅ Aucun incident signalé`;
+      container.appendChild(okDiv);
+    }
+  }, 2000);
+}
 
 async function fetchNews() {
   try {
@@ -128,54 +172,24 @@ async function fetchRER() {
   }
 }
 
-async function fetchBusJoinvilleStyled() {
-  const stopId = "STIF:StopArea:SP:43135:";
-  const container = document.getElementById("bus-joinville");
-  const alertContainer = document.getElementById("bus-alerts");
-
-  try {
-    const url = PROXY_BASE + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=${stopId}`);
-    const res = await fetch(url);
-    const data = await res.json();
-    const visits = data.Siri?.ServiceDelivery?.StopMonitoringDelivery?.[0]?.MonitoredStopVisit || [];
-
-    const byLine = {};
-    visits.forEach(v => {
-      const line = v.MonitoredVehicleJourney.LineRef.value.split(":").pop();
-      const dest = v.MonitoredVehicleJourney.DestinationName[0].value;
-      const key = `${line}||${dest}`;
-      if (!byLine[key]) byLine[key] = [];
-      if (byLine[key].length < 2) byLine[key].push(v);
-    });
-
-    container.innerHTML = Object.entries(byLine).map(([key, visits]) => {
-      const [line, dest] = key.split("||");
-      const times = visits.map(v => {
-        const time = new Date(v.MonitoredVehicleJourney.MonitoredCall.ExpectedArrivalTime);
-        const h = time.getHours();
-        const m = time.getMinutes().toString().padStart(2, "0");
-        const badge = v.MonitoredVehicleJourney.MonitoredCall.Extensions?.[0]?.DepartureStatus === "last" ? "🔴 dernier bus" : "";
-        return `<span>${h}h${m} ${badge}</span>`;
-      }).join("");
-
-      return `
-        <div class="bus-line">
-          <div class="left">
-            <span class="bus-badge">${line}</span>
-            <span>${dest}</span>
-          </div>
-          <div class="bus-times">${times}</div>
-        </div>
-      `;
-    }).join("");
-
-    alertContainer.innerHTML = `ℹ️ Aucune alerte trafic active.`;
-  } catch (err) {
-    container.textContent = "❌ Données indisponibles";
-    console.error("[fetchBusJoinvilleStyled] erreur :", err);
-  }
+function groupAndRender(visits, maxItems = 3) {
+  const grouped = {};
+  visits.forEach(p => {
+    const dest = p.MonitoredVehicleJourney.DestinationName[0].value;
+    if (!grouped[dest]) grouped[dest] = [];
+    if (grouped[dest].length < maxItems) grouped[dest].push(p);
+  });
+  return Object.entries(grouped).map(([dest, items]) => `
+    <div class="card">
+      <strong>${dest}</strong><br>
+      ${items.map(i => {
+        const time = new Date(i.MonitoredVehicleJourney.MonitoredCall.ExpectedArrivalTime);
+        const delay = i.MonitoredVehicleJourney.Delay;
+        const status = delay ? `🔴 Retard ${Math.round(delay / 60)} min` : "🟢 à l'heure";
+        return `${time.toLocaleTimeString("fr-FR", {hour:'2-digit',minute:'2-digit'})} → ${status}`;
+      }).join("<br>")}
+    </div>`).join("");
 }
-
 
 async function fetchBus(containerId, stopId) {
   try {
@@ -206,24 +220,6 @@ async function fetchBus(containerId, stopId) {
   }
 }
 
-function groupAndRender(visits, maxItems = 3) {
-  const grouped = {};
-  visits.forEach(p => {
-    const dest = p.MonitoredVehicleJourney.DestinationName[0].value;
-    if (!grouped[dest]) grouped[dest] = [];
-    if (grouped[dest].length < maxItems) grouped[dest].push(p);
-  });
-  return Object.entries(grouped).map(([dest, items]) => `
-    <div class="card">
-      <strong>${dest}</strong><br>
-      ${items.map(i => {
-        const time = new Date(i.MonitoredVehicleJourney.MonitoredCall.ExpectedArrivalTime);
-        const delay = i.MonitoredVehicleJourney.Delay;
-        const status = delay ? `🔴 Retard ${Math.round(delay / 60)} min` : "🟢 à l'heure";
-        return `${time.toLocaleTimeString("fr-FR", {hour:'2-digit',minute:'2-digit'})} → ${status}`;
-      }).join("<br>")}
-    </div>`).join("");
-}
 document.addEventListener("DOMContentLoaded", () => {
   updateDateTime();
   fetchWeather();
@@ -231,12 +227,13 @@ document.addEventListener("DOMContentLoaded", () => {
   fetchVelib('https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/velib-disponibilite-en-temps-reel/exports/json?lang=fr&qv1=(12128)&timezone=Europe%2FParis', 'velib-breuil');
   fetchRaces();
   fetchAlerts();
-  fetchLineAlerts("line:IDFM:C01742", "alert-rerA");     // RER A
-  fetchLineAlerts("line:IDFM:C02251", "alert-bus77");    // Bus 77
-  fetchLineAlerts("line:IDFM:C01219", "alert-bus201");   // Bus 201
+  fetchLineAlerts("line:IDFM:C01742");
+  fetchLineAlerts("line:IDFM:C02251");
+  fetchLineAlerts("line:IDFM:C01219");
   fetchNews();
   fetchRER();
   fetchBus("busJoinville", "STIF:StopArea:SP:43135:");
   fetchBus("busHippodrome", "STIF:StopArea:SP:463641:");
+  fetchAllJoinvilleAlerts();
   setInterval(updateDateTime, 10000);
 });
