@@ -177,6 +177,9 @@ document.addEventListener("DOMContentLoaded", () => {
   fetchVelib('https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/velib-disponibilite-en-temps-reel/exports/json?lang=fr&qv1=(12128)&timezone=Europe%2FParis', 'velib-breuil');
   fetchRaces();
   fetchAlerts();
+  fetchLineAlerts("line:IDFM:C01742", "alert-rerA");     // RER A
+  fetchLineAlerts("line:IDFM:C02251", "alert-bus77");    // Bus 77
+  fetchLineAlerts("line:IDFM:C01219", "alert-bus201");   // Bus 201
   fetchNews();
   fetchRER();
   fetchBus("busJoinville", "STIF:StopArea:SP:43135:");
