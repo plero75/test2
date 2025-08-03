@@ -16,6 +16,7 @@ async function fetchWeather() {
     document.getElementById("weather").textContent = "Météo indisponible";
   }
 }
+
 function log(msg) {
   const logDiv = document.getElementById("log-console");
   if (!logDiv) return;
@@ -244,4 +245,9 @@ document.addEventListener("DOMContentLoaded", () => {
   fetchBus("busHippodrome", "STIF:StopArea:SP:463641:");
   fetchAllJoinvilleAlerts();
   setInterval(updateDateTime, 10000);
+
+  log("🌤 Météo mise à jour");
+  log("🚲 Vélib Vincennes mis à jour");
+  log("📡 Données RER récupérées");
+  log("📰 Actualités France Info mises à jour");
 });
