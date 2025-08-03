@@ -65,6 +65,38 @@ async function fetchAlerts() {
   }
 }
 
+async function fetchLineAlerts(lineId, containerId) {
+  try {
+    const url = PROXY_BASE + encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/v2/navitia/line_reports/lines/${lineId}`);
+    const res = await fetch(url);
+    const data = await res.json();
+    console.log(`[fetchLineAlerts] ${lineId}`, data);
+
+    const disruptions = data.disruptions || [];
+
+    const icons = {
+      "incident": "🚨",
+      "work": "🚧",
+      "information": "ℹ️",
+      "other": "⚠️"
+    };
+
+    document.getElementById(containerId).innerHTML = disruptions.length
+      ? disruptions.map(d => {
+          const type = d.severity?.effect ?? "other";
+          const emoji = icons[type] || "⚠️";
+          const title = d.title?.text ?? "Alerte";
+          const message = d.message?.text ?? "Pas de détail.";
+          return `<div class="card">${emoji} <strong>${title}</strong><br>${message}</div>`;
+        }).join("")
+      : "✅ Aucun incident signalé";
+  } catch (err) {
+    console.error(`[fetchLineAlerts] Erreur pour ${lineId}`, err);
+    document.getElementById(containerId).textContent = "❌ Erreur de chargement";
+  }
+}
+
+
 async function fetchNews() {
   try {
     const res = await fetch("https://api.allorigins.win/get?url=https%3A%2F%2Fwww.francetvinfo.fr%2Ftitres.rss");
