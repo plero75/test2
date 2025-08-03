@@ -90,12 +90,18 @@ function fetchLineAlerts(lineCode) {
         return;
       }
 
-      disruptions.forEach(d => {
-        const message = d.messages?.[0]?.text || d.description || "Pas de détail";
-        const div = document.createElement("div");
-        div.className = "alert-item";
-        div.innerHTML = `⚠️ ${message}`;
-        container.appendChild(div);
+disruptions.forEach(d => {
+  const message = (Array.isArray(d.messages) && d.messages[0]?.text)
+    || d.description
+    || d?.impact?.text
+    || "ℹ️ Aucune information disponible.";
+
+  const div = document.createElement("div");
+  div.className = "alert-item";
+  div.innerHTML = `⚠️ ${message}`;
+  container.appendChild(div);
+});
+
       });
     })
     .catch(err => console.error("Erreur fetchLineAlerts", lineCode, err));
