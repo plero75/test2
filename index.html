@@ -1,68 +1,83 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Dashboard Hippodrome</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard Vincennes</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      background-color: #f4f4f4;
+    }
+    header, footer {
+      background-color: #00224d;
+      color: white;
+      padding: 10px;
+      text-align: center;
+    }
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 10px;
+      padding: 10px;
+    }
+    .card {
+      background: white;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 0 6px rgba(0,0,0,0.1);
+    }
+    .alert-item {
+      background-color: #fff2cc;
+      padding: 6px;
+      margin-bottom: 5px;
+      border-left: 5px solid #f0ad4e;
+    }
+    .alert-ok {
+      background-color: #dff0d8;
+      padding: 6px;
+      border-left: 5px solid #5cb85c;
+    }
+    .velib-block {
+      font-size: 0.95em;
+    }
+    #log-console {
+      background-color: #222;
+      color: #0f0;
+      font-family: monospace;
+      font-size: 0.8em;
+      padding: 8px;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+  </style>
 </head>
 <body>
-
   <header>
-    <img src="logo.png" alt="Logo">
-    <h1>Dashboard Temps Réel</h1>
+    <h1>Dashboard – Hippodrome de Vincennes</h1>
+    <div id="datetime">🕐 Chargement...</div>
   </header>
 
-  <div id="datetime"></div>
-
-  <main>
-    <!-- Météo -->
-    <div class="module" id="weather">Chargement météo...</div>
-
-    <!-- Vélib -->
-    <div class="module">
-      <h2>Vélib'</h2>
-      <div id="velib-vincennes"></div>
-      <div id="velib-breuil"></div>
-      <div id="velib-update"></div>
-    </div>
-
-    <!-- Races hippiques -->
-    <div class="module" id="races">Chargement des courses...</div>
-
-    <!-- Alertes lignes -->
-    <div class="module">
-      <h2>Alertes Trafic</h2>
-      <div id="alert-rerA"></div>
-      <div id="alert-bus77"></div>
-      <div id="alert-bus201"></div>
-    </div>
-
-    <!-- Actualités -->
-    <div class="module" id="news">Chargement des actualités...</div>
-
-    <!-- RER A -->
-    <div class="module">
-      <h2>RER A – Joinville</h2>
-      <div id="rerA">Chargement...</div>
-    </div>
-<div id="bus-joinville" class="bus-board"></div>
-<div id="bus-alerts" class="bus-alert"></div>
-<div id="log-console" style="font-family: monospace; font-size: 0.75em; background: #111; color: #0f0; padding: 0.5em; max-height: 100px; overflow-y: auto; border: 1px solid #333;">
-  <div>[🟢] Initialisation du tableau de bord</div>
-</div>
-
-
-    <!-- Bus Hippodrome -->
-    <div class="module">
-      <h2>Bus – Hippodrome</h2>
-      <div id="busHippodrome">Chargement...</div>
-    </div>
+  <main class="dashboard">
+    <div id="weather" class="card">🌤 Météo en cours...</div>
+    <div id="alerts" class="card">⚠️ Chargement des alertes...</div>
+    <div id="news" class="card">📰 Fil d’actualités...</div>
+    <div id="rerA" class="card">🚆 RER A en temps réel...</div>
+    <div id="busJoinville" class="card">🚌 Bus – Joinville-le-Pont</div>
+    <div id="busHippodrome" class="card">🚌 Bus – Hippodrome</div>
+    <div id="velib-vincennes" class="card">🚲 Vélib Vincennes</div>
+    <div id="velib-breuil" class="card">🚲 Vélib Breuil</div>
+    <div id="races" class="card">🐎 Prochaines courses</div>
   </main>
 
   <footer>
-    <span>© Hippodrome de Vincennes</span>
+    <div>© 2025 Hippodrome de Paris-Vincennes</div>
+    <div>Projet API temps réel & dashboard</div>
   </footer>
 
-  <script src="script.js"></script>
+  <div id="log-console"></div>
+
+  <script src="script"></script>
 </body>
 </html>
