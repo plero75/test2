@@ -16,6 +16,14 @@ async function fetchWeather() {
     document.getElementById("weather").textContent = "Météo indisponible";
   }
 }
+function log(msg) {
+  const logDiv = document.getElementById("log-console");
+  if (!logDiv) return;
+  const entry = document.createElement("div");
+  entry.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+  logDiv.appendChild(entry);
+  if (logDiv.children.length > 15) logDiv.removeChild(logDiv.firstChild);
+}
 
 async function fetchVelib(url, containerId) {
   try {
