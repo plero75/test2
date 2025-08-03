@@ -1,83 +1,164 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard Vincennes</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      background-color: #f4f4f4;
-    }
-    header, footer {
-      background-color: #00224d;
-      color: white;
-      padding: 10px;
-      text-align: center;
-    }
-    .dashboard {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 10px;
-      padding: 10px;
-    }
-    .card {
-      background: white;
-      padding: 10px;
-      border-radius: 8px;
-      box-shadow: 0 0 6px rgba(0,0,0,0.1);
-    }
-    .alert-item {
-      background-color: #fff2cc;
-      padding: 6px;
-      margin-bottom: 5px;
-      border-left: 5px solid #f0ad4e;
-    }
-    .alert-ok {
-      background-color: #dff0d8;
-      padding: 6px;
-      border-left: 5px solid #5cb85c;
-    }
-    .velib-block {
-      font-size: 0.95em;
-    }
-    #log-console {
-      background-color: #222;
-      color: #0f0;
-      font-family: monospace;
-      font-size: 0.8em;
-      padding: 8px;
-      max-height: 150px;
-      overflow-y: auto;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>Dashboard – Hippodrome de Vincennes</h1>
-    <div id="datetime">🕐 Chargement...</div>
-  </header>
+<!-- BLOC JOINVILLE-LE-PONT : Style IDFM avec données dynamiques et alertes -->
+<div class="joinville-container">
+  <div class="station-title">Joinville-le-Pont</div>
 
-  <main class="dashboard">
-    <div id="weather" class="card">🌤 Météo en cours...</div>
-    <div id="alerts" class="card">⚠️ Chargement des alertes...</div>
-    <div id="news" class="card">📰 Fil d’actualités...</div>
-    <div id="rerA" class="card">🚆 RER A en temps réel...</div>
-    <div id="busJoinville" class="card">🚌 Bus – Joinville-le-Pont</div>
-    <div id="busHippodrome" class="card">🚌 Bus – Hippodrome</div>
-    <div id="velib-vincennes" class="card">🚲 Vélib Vincennes</div>
-    <div id="velib-breuil" class="card">🚲 Vélib Breuil</div>
-    <div id="races" class="card">🐎 Prochaines courses</div>
-  </main>
+  <div class="bus-line bus-line-77">
+    <span class="badge badge-77">77</span>
+    <span class="destination">Gare de Lyon</span>
+    <div class="times" id="times-77"></div>
+  </div>
 
-  <footer>
-    <div>© 2025 Hippodrome de Paris-Vincennes</div>
-    <div>Projet API temps réel & dashboard</div>
-  </footer>
+  <div class="bus-line bus-line-101">
+    <span class="badge badge-101">101</span>
+    <span class="destination">Camping International</span>
+    <div class="times" id="times-101"></div>
+  </div>
 
-  <div id="log-console"></div>
+  <div class="bus-line bus-line-106">
+    <span class="badge badge-106">106</span>
+    <span class="destination">Villiers-sur-Marne</span>
+    <div class="times" id="times-106"></div>
+  </div>
 
-  <script src="script.js"></script>
-</body>
-</html>
+  <div class="bus-line bus-line-108">
+    <span class="badge badge-108">108</span>
+    <span class="destination">Champigny – Jeanne Vacher</span>
+    <div class="times" id="times-108"></div>
+  </div>
+
+  <div class="bus-line bus-line-N33">
+    <span class="badge badge-N33">N33</span>
+    <span class="destination">Villiers-sur-Marne</span>
+    <div class="times" id="times-N33"></div>
+  </div>
+</div>
+
+<style>
+  .joinville-container {
+    background: #f7f8fb;
+    border: 2px solid #001f7f;
+    padding: 1rem;
+    border-radius: 8px;
+    font-family: Arial, sans-serif;
+    max-width: 700px;
+    margin: auto;
+  }
+  .station-title {
+    background: #001f7f;
+    color: white;
+    padding: 0.5rem 1rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+  .bus-line {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid #ddd;
+    padding: 0.5rem 0;
+    position: relative;
+  }
+  .badge {
+    display: inline-block;
+    min-width: 40px;
+    text-align: center;
+    padding: 0.3rem 0.6rem;
+    color: white;
+    font-weight: bold;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+  }
+  .badge-77 { background: #0078c8; }
+  .badge-101 { background: #ffd200; color: #000; }
+  .badge-106 { background: #f03; }
+  .badge-108 { background: #9d009f; }
+  .badge-N33 { background: #001f7f; }
+  .destination {
+    font-weight: bold;
+    margin-bottom: 0.3rem;
+  }
+  .times {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+  .time-block {
+    background: #f8f9fa;
+    padding: 0.3rem 0.5rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 0.95rem;
+  }
+  .hour {
+    font-weight: bold;
+  }
+  .delay {
+    margin-left: 5px;
+    color: #666;
+  }
+  .notice-block {
+    font-size: 0.85rem;
+    padding: 0.3rem 0.5rem;
+    background: #e2e3e5;
+    border-radius: 6px;
+    color: #333;
+  }
+  .notice-block.red {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+  }
+  .alert-banner {
+    margin-top: 0.3rem;
+    background: #fff3cd;
+    padding: 0.3rem 1rem;
+    border-left: 4px solid #ffc107;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    animation: scroll-left 20s linear infinite;
+  }
+  @keyframes scroll-left {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+  }
+</style>
+
+<script>
+const lines = [
+  { id: "line:IDFM:C02251", selector: ".bus-line-77" },
+  { id: "line:IDFM:C01130", selector: ".bus-line-101" },
+  { id: "line:IDFM:C01135", selector: ".bus-line-106" },
+  { id: "line:IDFM:C01137", selector: ".bus-line-108" },
+  { id: "line:IDFM:C01399", selector: ".bus-line-N33" },
+];
+
+async function fetchLineReports(lineId, containerSelector) {
+  const proxyBase = 'https://ratp-proxy.hippodrome-proxy42.workers.dev';
+  const encodedUrl = encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/v2/navitia/line_reports/lines/${lineId}`);
+  const url = `${proxyBase}/?url=${encodedUrl}`;
+
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data.disruptions && data.disruptions.length > 0) {
+      const alertText = data.disruptions.map(d => d.message.text).join(" – ");
+      const banner = document.createElement("div");
+      banner.className = "alert-banner";
+      banner.innerHTML = `⚠️ ${alertText}`;
+
+      const container = document.querySelector(containerSelector);
+      if (container) {
+        container.appendChild(banner);
+      }
+    }
+  } catch (err) {
+    console.error("Erreur fetchLineReports:", lineId, err);
+  }
+}
+
+lines.forEach(line => fetchLineReports(line.id, line.selector));
+</script>
