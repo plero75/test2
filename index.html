@@ -1,55 +1,67 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard Vincennes</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>Dashboard Hippodrome</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
   <header>
-    <h1>🟢 Dashboard Hippodrome de Vincennes</h1>
-    <div id="datetime"></div>
+    <img src="logo.png" alt="Logo">
+    <h1>Dashboard Temps Réel</h1>
   </header>
 
-  <section>
-    <h2>🌤 Météo</h2>
-    <div id="weather" class="bloc">Chargement météo...</div>
-  </section>
+  <div id="datetime"></div>
 
-  <section>
-    <h2>🚲 Stations Vélib’</h2>
-    <div id="velib" class="bloc">Chargement Vélib...</div>
-  </section>
+  <main>
+    <!-- Météo -->
+    <div class="module" id="weather">Chargement météo...</div>
 
-  <section>
-    <h2>🚆 RER A – Joinville-le-Pont</h2>
-    <div id="rerA" class="bloc">Chargement RER A...</div>
-  </section>
+    <!-- Vélib -->
+    <div class="module">
+      <h2>Vélib'</h2>
+      <div id="velib-vincennes"></div>
+      <div id="velib-breuil"></div>
+      <div id="velib-update"></div>
+    </div>
 
-  <section>
-    <h2>🚌 Bus – Joinville-le-Pont</h2>
-    <div id="busJoinville" class="bloc">Chargement bus...</div>
-  </section>
+    <!-- Races hippiques -->
+    <div class="module" id="races">Chargement des courses...</div>
 
-  <section>
-    <h2>🚌 Bus – Hippodrome de Vincennes</h2>
-    <div id="busHippodrome" class="bloc">Chargement bus...</div>
-  </section>
+    <!-- Alertes lignes -->
+    <div class="module">
+      <h2>Alertes Trafic</h2>
+      <div id="alert-rerA"></div>
+      <div id="alert-bus77"></div>
+      <div id="alert-bus201"></div>
+    </div>
 
-  <section>
-    <h2>📢 Alertes Trafic</h2>
-    <div id="alerts" class="bloc">Chargement alertes...</div>
-  </section>
-<div id="alert-rerA" class="module"></div>
-<div id="alert-bus77" class="module"></div>
-<div id="alert-bus201" class="module"></div>
+    <!-- Actualités -->
+    <div class="module" id="news">Chargement des actualités...</div>
 
-  <section>
-    <h2>🏇 Courses Hippiques</h2>
-    <div id="races" class="bloc">Chargement courses...</div>
-  </section>
+    <!-- RER A -->
+    <div class="module">
+      <h2>RER A – Joinville</h2>
+      <div id="rerA">Chargement...</div>
+    </div>
+
+    <!-- Bus Joinville -->
+    <div class="module">
+      <h2>Bus – Joinville</h2>
+      <div id="busJoinville">Chargement...</div>
+    </div>
+
+    <!-- Bus Hippodrome -->
+    <div class="module">
+      <h2>Bus – Hippodrome</h2>
+      <div id="busHippodrome">Chargement...</div>
+    </div>
+  </main>
+
+  <footer>
+    <span>© Hippodrome de Vincennes</span>
+  </footer>
 
   <script src="script.js"></script>
 </body>
