@@ -207,6 +207,7 @@ async function fetchBus(containerId, stopId) {
     const data = await res.json();
     const visits = data.Siri?.ServiceDelivery?.StopMonitoringDelivery?.[0]?.MonitoredStopVisit || [];
     const lines = {};
+
     visits.forEach(v => {
       const line = v.MonitoredVehicleJourney.LineRef.value.split(":").pop();
       const dir = v.MonitoredVehicleJourney.DestinationName[0].value;
@@ -214,18 +215,30 @@ async function fetchBus(containerId, stopId) {
       if (!lines[key]) lines[key] = [];
       if (lines[key].length < 2) lines[key].push(v);
     });
-    document.getElementById(containerId).innerHTML = Object.entries(lines).map(([label, list]) => `
-      <div class="card">
-        <strong>${label}</strong><br>
-        ${list.map(v => {
-          const time = new Date(v.MonitoredVehicleJourney.MonitoredCall.ExpectedArrivalTime);
-          const delay = v.MonitoredVehicleJourney.Delay;
-          const status = delay ? `🔴 Retard ${Math.round(delay / 60)} min` : "🟢 à l'heure";
-          return `${time.toLocaleTimeString("fr-FR", {hour:'2-digit',minute:'2-digit'})} → ${status}`;
-        }).join("<br>")}
-      </div>`).join("");
+
+    document.getElementById(containerId).innerHTML = Object.entries(lines).map(([label, list]) => {
+      return `
+        <div class="card">
+          <strong>${label}</strong><br>
+          ${list.map(v => {
+            const call = v.MonitoredVehicleJourney.MonitoredCall;
+            const planned = new Date(call.AimedArrivalTime);
+            const estimated = new Date(call.ExpectedArrivalTime || call.AimedArrivalTime);
+            const cancelled = v.MonitoredVehicleJourney.Occupancy === "cancelled";
+            const isLate = estimated - planned > 60000;
+            const status = cancelled
+              ? "❌ Supprimé"
+              : isLate
+              ? `⚠️ Retardé de +${Math.round((estimated - planned) / 60000)} min`
+              : "🟢 À l'heure";
+
+            return `${estimated.toLocaleTimeString("fr-FR", {hour:'2-digit',minute:'2-digit'})} → ${status}`;
+          }).join("<br>")}
+        </div>`;
+    }).join("");
+
   } catch (err) {
-    document.getElementById(containerId).textContent = "Données bus indisponibles";
+    document.getElementById(containerId).textContent = "❌ Données bus indisponibles";
   }
 }
 
@@ -240,7 +253,7 @@ document.addEventListener("DOMContentLoaded", () => {
   fetchLineAlerts("line:IDFM:C02251");
   fetchLineAlerts("line:IDFM:C01219");
   fetchNews();
-  fetchRER();
+  fetchRER();  
   fetchBus("busJoinville", "STIF:StopArea:SP:43135:");
   fetchBus("busHippodrome", "STIF:StopArea:SP:463641:");
   fetchAllJoinvilleAlerts();
