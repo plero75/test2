@@ -1,100 +1,39 @@
-/* style.css */
 body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  background: #f0f2f5;
-  color: #333;
-}
-
-header, footer {
-  background: #0053a6;
-  color: white;
-  padding: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-header img {
-  height: 40px;
-}
-
-h1 {
-  font-size: 1.4em;
-  margin: 0;
-}
-
-main {
-  padding: 20px;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
-}
-
-.module {
-  background: white;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.card {
-  background: #e8f0fe;
-  margin: 8px 0;
-  padding: 8px;
-  border-left: 4px solid #0053a6;
-}
-
-#datetime {
-  background: #dff0d8;
-  text-align: center;
-  padding: 10px;
-  font-size: 1.1em;
-}
-.bus-board {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
   font-family: sans-serif;
+  background: #f8f8f8;
+  padding: 20px;
 }
-
-.bus-line {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+#datetime, #weather {
+  font-size: 1.4em;
+  margin-bottom: 15px;
+}
+.card {
   background: #fff;
-  border-left: 5px solid #0053a6;
+  border: 1px solid #ccc;
   padding: 10px;
-  border-radius: 5px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-bottom: 10px;
+  border-radius: 6px;
 }
-
-.bus-line .left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.time-block {
+  margin: 6px 0;
 }
-
-.bus-badge {
-  background: #000;
-  color: #ff0;
-  font-weight: bold;
-  padding: 2px 6px;
-  border-radius: 4px;
-  min-width: 32px;
-  text-align: center;
-}
-
-.bus-times {
-  display: flex;
-  gap: 8px;
-  font-weight: bold;
-}
-
-.bus-alert {
-  background: #e9eefc;
-  padding: 10px;
+.notice-block {
+  color: #555;
   font-size: 0.9em;
-  margin-top: 15px;
-  border-left: 5px solid #0053a6;
+}
+.alert-item {
+  color: #b00;
+  font-weight: bold;
+}
+.alert-ok {
+  color: #090;
+}
+.service-time {
+  font-size: 0.8em;
+  color: #555;
+}
+.scrollable {
+  max-height: 120px;
+  overflow-y: auto;
+  margin-top: 5px;
 }
