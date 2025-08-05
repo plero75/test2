@@ -3,13 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Départs Bus – Joinville-le-Pont</title>
+  <title>Dashboard Complet – Hippodrome Vincennes</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="alertes.css" />
 </head>
 <body>
-  <h1>Joinville-le-Pont – Départs Bus</h1>
-  <div id="busGrid" class="bus-grid"></div>
+  <h1>Dashboard – Joinville-le-Pont / Vincennes</h1>
+  <div id="dashboard">
+    <section>
+      <h2>🚌 Bus – Joinville-le-Pont</h2>
+      <div id="busGrid" class="bus-grid"></div>
+    </section>
+    <section>
+      <h2>🚆 RER A – Prochains départs</h2>
+      <div id="rerGrid" class="rer-grid"></div>
+    </section>
+    <section>
+      <h2>🌦️ Météo locale</h2>
+      <div id="weatherBlock"></div>
+    </section>
+    <section>
+      <h2>🚲 Vélib’ disponibles</h2>
+      <div id="velibBlock"></div>
+    </section>
+    <section>
+      <h2>📻 Actus France Info</h2>
+      <div id="newsTicker" class="news-ticker"></div>
+    </section>
+  </div>
   <script src="script.js"></script>
 </body>
 </html>
