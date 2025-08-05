@@ -1,4 +1,4 @@
-const proxy = "https://ratp-proxy.hippodrome-proxy42.workers.dev/?url=";
+const proxy = "https://ratp-proxy.hippodrome-proxy42.workers.dev/";
 const stopAreaJoinville = "STIF:StopArea:SP:70640";
 
 const lines = [
@@ -16,7 +16,7 @@ const lines = [
 
 async function fetchDepartures(line) {
   try {
-    const url = proxy + "url=" + encodeURIComponent(
+    const url = proxy + "?url=" + encodeURIComponent(
       `https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=${stopAreaJoinville}`
     );
     const res = await fetch(url);
