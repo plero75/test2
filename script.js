@@ -1,4 +1,4 @@
-const proxy = "https://ratp-proxy.hippodrome-proxy42.workers.dev/";
+const proxy = "https://ratp-proxy.hippodrome-proxy42.workers.dev/?url=";
 const stopAreaJoinville = "STIF:StopArea:SP:70640";
 
 const lines = [
