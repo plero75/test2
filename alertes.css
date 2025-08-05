@@ -1,9 +1,1 @@
-.alert {
-  background-color: #fff4d6;
-  border-left: 6px solid #ff9800;
-  padding: 12px;
-  margin: 10px 0;
-  border-radius: 4px;
-  font-size: 0.9em;
-  color: #5f370e;
-}
+.alert{background:#fff4d6;border-left:6px solid #ff9800;padding:10px;margin:10px;border-radius:4px;font-size:0.9em;color:#5f370e}
