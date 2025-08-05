@@ -1,4 +1,4 @@
-const proxy = "https://ratp-proxy.hippodrome-proxy42.workers.dev/";
+  const proxy = "https://ratp-proxy.hippodrome-proxy42.workers.dev/";
 const stopAreaJoinville = "STIF:StopArea:SP:70640";
 
 const lines = [
@@ -14,29 +14,16 @@ const lines = [
   { id: "IDFM:C01227", label: "281", destination: "Créteil-Europarc" },
 ];
 
-async function fetchDepartures(line) {
-  try {
-    const url = proxy + "?url=" + encodeURIComponent(
-      `https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=${stopAreaJoinville}`
-    );
-    const res = await fetch(url);
-    const data = await res.json();
-    return data?.Siri?.ServiceDelivery?.StopMonitoringDelivery?.[0]?.MonitoredStopVisit
-      ?.filter(visit => visit.MonitoredVehicleJourney?.LineRef?.includes(line.id))
-      ?.map(visit => {
-        const call = visit.MonitoredVehicleJourney?.MonitoredCall;
-        return {
-          aimed: call?.AimedDepartureTime,
-          expected: call?.ExpectedDepartureTime,
-          cancelled: !visit.MonitoredVehicleJourney?.Monitored,
-          destination: visit.MonitoredVehicleJourney?.DestinationName?.value || "?"
-        };
-      }) || [];
-  } catch (e) {
-    console.error("Erreur API pour", line.label, e);
-    return [];
-  }
-}
+const monitoredLines = [
+  "IDFM:C01742", "IDFM:C02251", "IDFM:C01219", "IDFM:C01130"
+];
+
+const buildStopMonitoringURL = (stopArea) => {
+  const base = `https://prim.iledefrance-mobilites.fr/marketplace/v2/navitia/stop-monitoring?MonitoringRef=${stopArea}`;
+  const lineParams = monitoredLines.map(id => `lineRef=${id}`).join("&");
+  return `${proxy}?url=${encodeURIComponent(base + "&" + lineParams)}`;
+};
+
 
 async function fetchAlerts(line) {
   try {
@@ -62,7 +49,7 @@ async function displayBusGrid() {
   const grid = document.getElementById("busGrid");
 
   for (const line of lines) {
-    const departures = await fetchDepartures(line);
+const url = buildStopMonitoringURL(stopAreaJoinville);
     const alerts = await fetchAlerts(line);
 
     const timesHTML = departures.slice(0, 2).map(dep => {
