@@ -31,7 +31,73 @@ body {
   align-items: center;
   min-height: 80px;
 }
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background: #f6f6f6;
+  color: #222;
+}
 
+h1 {
+  text-align: center;
+  background: #002868;
+  color: white;
+  margin: 0;
+  padding: 12px;
+}
+
+.bus-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+  padding: 16px;
+}
+
+.bus-block {
+  background: white;
+  border-left: 8px solid #003399;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 80px;
+}
+
+.bus-header {
+  display: flex;
+  flex-direction: column;
+}
+
+.line {
+  font-weight: bold;
+  font-size: 1.2em;
+  background: #003399;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  display: inline-block;
+}
+
+.bus-times {
+  text-align: right;
+  font-size: 1.2em;
+}
+
+.bus-times span {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.tag {
+  font-size: 0.8em;
+  color: white;
+  background: #888;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
 .bus-header {
   display: flex;
   flex-direction: column;
