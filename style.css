@@ -1,39 +1,58 @@
 body {
-  font-family: sans-serif;
-  background: #f8f8f8;
-  padding: 20px;
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background: #f6f6f6;
 }
-#datetime, #weather {
-  font-size: 1.4em;
-  margin-bottom: 15px;
+
+.bus-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+  padding: 16px;
 }
-.card {
-  background: #fff;
-  border: 1px solid #ccc;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 6px;
+
+.bus-block {
+  background: white;
+  border-left: 8px solid #003399;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 80px;
 }
-.time-block {
-  margin: 6px 0;
+
+.bus-header {
+  display: flex;
+  flex-direction: column;
 }
-.notice-block {
-  color: #555;
-  font-size: 0.9em;
-}
-.alert-item {
-  color: #b00;
+
+.line {
   font-weight: bold;
+  font-size: 1.2em;
+  background: #003399;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  display: inline-block;
 }
-.alert-ok {
-  color: #090;
+
+.bus-times {
+  text-align: right;
+  font-size: 1.2em;
 }
-.service-time {
+
+.bus-times span {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.tag {
   font-size: 0.8em;
-  color: #555;
-}
-.scrollable {
-  max-height: 120px;
-  overflow-y: auto;
-  margin-top: 5px;
+  color: white;
+  background: #888;
+  padding: 2px 6px;
+  border-radius: 4px;
 }
