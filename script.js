@@ -58,16 +58,19 @@ async function fetchVelibDirect(url, containerId) {
 // === ACTUS FRANCE INFO ===
 let newsItems = [], currentNewsIndex = 0;
 
-async function fetchNewsTicker(containerId) {
-  const url = 'https://api.rss2json.com/v1/api.json?rss_url=https://www.francetvinfo.fr/titres.rss';
+async function fetchNews() {
   try {
+    const rssUrl = 'https://www.francetvinfo.fr/titres.rss';
+    const url = `${CORS_PROXY}{encodeURIComponent(rssUrl)}`;
     const res = await fetch(url);
-    const data = await res.json();
-    newsItems = data.items || [];
-    currentNewsIndex = 0;
-    showNewsItem(containerId);
-  } catch {
-    document.getElementById(containerId).textContent = "❌ Erreur actus";
+    const xmlText = await res.text();
+    const rss = new DOMParser().parseFromString(xmlText, 'text/xml');
+    const items = rss.querySelectorAll('item');
+    const titles = Array.from(items).slice(0, 5).map(el => el.querySelector('title').textContent.trim()).join(' • ');
+    document.getElementById('newsTicker').innerText = titles;
+  } catch (e) {
+    console.error('🛑 Erreur flux RSS :', e);
+    document.getElementById('newsTicker').innerText = '';
   }
 }
 
