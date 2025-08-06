@@ -4,35 +4,44 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard Complet – Hippodrome Vincennes</title>
- <div id="datetime" class="horloge"></div>
-
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="alertes.css" />
 </head>
 <body>
   <h1>Dashboard – Joinville-le-Pont / Vincennes</h1>
+  <div id="datetime" class="horloge"></div>
   <div id="dashboard">
     <section>
-    <h2>🚆 RER A – Prochains départs</h2>
-<div id="rerGrid" class="rer-grid"></div>
+      <h2>🚆 RER A – Prochains départs</h2>
+      <div id="rerGrid" class="rer-grid"></div>
 
-<h2>🚌 Bus – Prochains départs</h2>
-<div id="busBlock" class="transport-grid"></div>
-
+      <h2>🚌 Bus – Prochains départs</h2>
+      <div id="busBlock" class="transport-grid"></div>
     </section>
+
     <section>
       <h2>🌦️ Météo locale</h2>
-      <div id="weatherBlock"></div>
+      <div id="weatherBlock">
+        <div id="weather-summary"></div>
+        <div id="weather-update"></div>
+      </div>
     </section>
+
     <section>
       <h2>🚲 Vélib’ disponibles</h2>
-      <div id="velibBlock"></div>
+      <div id="velibBlock">
+        <div id="velib-vincennes"></div>
+        <div id="velib-breuil"></div>
+        <div id="velib-update"></div>
+      </div>
     </section>
+
     <section>
       <h2>📻 Actus France Info</h2>
-      <div id="newsTicker" class="news-ticker"></div>
+      <div id="newsTicker" class="news-ticker">Chargement des actus...</div>
     </section>
   </div>
+
   <script src="script.js"></script>
   <script src="weather.js"></script>
   <script src="velib.js"></script>
