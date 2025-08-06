@@ -1,50 +1,64 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard Complet – Hippodrome Vincennes</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="alertes.css" />
-</head>
-<body>
-  <h1>Dashboard – Joinville-le-Pont / Vincennes</h1>
-  <div id="datetime" class="horloge"></div>
-  <div id="dashboard">
-    <section>
-      <h2>🚆 RER A – Prochains départs</h2>
-      <div id="rerGrid" class="rer-grid"></div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Complet – Hippodrome Vincennes</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>🎛️ Dashboard – Joinville / Vincennes</h1>
+    <div id="datetime" class="datetime"></div>
 
-      <h2>🚌 Bus – Prochains départs</h2>
-      <div id="busBlock" class="transport-grid"></div>
-    </section>
+    <div class="dashboard">
+      <!-- RER A -->
+      <section>
+        <h2>🚆 RER A – Joinville-le-Pont</h2>
+        <div id="rer-a-passages" class="transport-grid"></div>
+        <div id="rer-a-update" class="update-time"></div>
+      </section>
 
-    <section>
-      <h2>🌦️ Météo locale</h2>
-      <div id="weatherBlock">
+      <!-- Bus 77 -->
+      <section>
+        <h2>🚌 Bus 77 – Hippodrome de Vincennes</h2>
+        <div id="bus-77-passages" class="transport-grid"></div>
+        <div id="bus-77-update" class="update-time"></div>
+      </section>
+
+      <!-- Bus 201 -->
+      <section>
+        <h2>🚌 Bus 201 – École du Breuil</h2>
+        <div id="bus-201-passages" class="transport-grid"></div>
+        <div id="bus-201-update" class="update-time"></div>
+      </section>
+
+      <!-- Météo -->
+      <section>
+        <h2>🌦️ Météo locale</h2>
         <div id="weather-summary"></div>
-        <div id="weather-update"></div>
-      </div>
-    </section>
+        <div id="weather-update" class="update-time"></div>
+      </section>
 
-    <section>
-      <h2>🚲 Vélib’ disponibles</h2>
-      <div id="velibBlock">
-        <div id="velib-vincennes"></div>
-        <div id="velib-breuil"></div>
-        <div id="velib-update"></div>
-      </div>
-    </section>
+      <!-- Vélib -->
+      <section>
+        <h2>🚲 Vélib’ disponibles</h2>
+        <div id="velib-vincennes" class="velib-block"></div>
+        <div id="velib-breuil" class="velib-block"></div>
+        <div id="velib-update" class="update-time"></div>
+      </section>
 
-    <section>
-      <h2>📻 Actus France Info</h2>
-      <div id="newsTicker" class="news-ticker">Chargement des actus...</div>
-    </section>
-  </div>
+      <!-- Actus -->
+      <section>
+        <h2>📻 Actus France Info</h2>
+        <div id="newsTicker" class="news-ticker"></div>
+      </section>
+    </div>
 
-  <script src="script.js"></script>
-  <script src="weather.js"></script>
-  <script src="velib.js"></script>
-  <script src="news.js"></script>
-</body>
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="idfMob.js"></script>
+    <script src="weather.js"></script>
+    <script src="velib.js"></script>
+    <script src="news.js"></script>
+  </body>
 </html>
