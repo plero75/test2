@@ -1,0 +1,1 @@
+// Code React principal (sera généré plus tard)
