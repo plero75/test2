@@ -1,37 +1,22 @@
-// --- Actus défilantes France Info via proxy ---
-let newsItems = [];
-let currentNewsIndex = 0;
-
-async function fetchNewsTicker(containerId) {
-  const proxyURL = "https://ratp-proxy.hippodrome-proxy42.workers.dev/?url=";
-  const rssURL = "https://api.rss2json.com/v1/api.json?rss_url=https://www.francetvinfo.fr/titres.rss";
-  const fullURL = proxyURL + encodeURIComponent(rssURL);
-
+// === velib.js ===
+async function fetchVelibDirect(url, containerId) {
   try {
-    const response = await fetch(fullURL);
+    const response = await fetch(url);
     if (!response.ok) throw new Error(`HTTP error ${response.status}`);
-    const data = await response.json();
-    newsItems = data.items || [];
-    if (newsItems.length === 0) {
-      document.getElementById(containerId).innerHTML = '✅ Aucun article';
-      return;
-    }
-    currentNewsIndex = 0;
-    showNewsItem(containerId);
+    const stations = await response.json();
+    const s = stations[0];
+    document.getElementById(containerId).innerHTML = `
+      <div class="velib-block">
+        📍 ${s.name}<br>
+        🚲 ${s.numbikesavailable} mécaniques&nbsp;|&nbsp;🔌 ${s.ebike} électriques<br>
+        🅿️ ${s.numdocksavailable} bornes
+      </div>
+    `;
+    document.getElementById('velib-update').textContent = 'Mise à jour : ' + (new Date()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
   } catch (err) {
-    document.getElementById(containerId).textContent = '❌ Erreur actus';
+    document.getElementById(containerId).innerHTML = '❌ Erreur Vélib’';
   }
 }
 
-function showNewsItem(containerId) {
-  if (newsItems.length === 0) return;
-  const item = newsItems[currentNewsIndex];
-  const desc = item.description ? item.description.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/ +/g, ' ').trim() : '';
-  const shortDesc = desc.length > 220 ? desc.slice(0,217).replace(/ [^ ]*$/, '') + "…" : desc;
-  document.getElementById(containerId).innerHTML = `<div class="news-item">
-    📰 <b>${item.title}</b>
-    <div class="news-desc">${shortDesc}</div>
-  </div>`;
-  currentNewsIndex = (currentNewsIndex + 1) % newsItems.length;
-  setTimeout(() => showNewsItem(containerId), 9000);
-}
+fetchVelibDirect('https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/velib-disponibilite-en-temps-reel/exports/json?lang=fr&qv1=(12163)&timezone=Europe%2FParis', 'velib-vincennes');
+fetchVelibDirect('https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/velib-disponibilite-en-temps-reel/exports/json?lang=fr&qv1=(12128)&timezone=Europe%2FParis', 'velib-breuil');
