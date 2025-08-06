@@ -58,7 +58,7 @@ async function fetchVelibDirect(url, containerId) {
 // === ACTUS FRANCE INFO ===
 let newsItems = [], currentNewsIndex = 0;
 
-async function fetchNews() {
+async function fetchNewsTicker() {
   try {
     const rssUrl = 'https://www.francetvinfo.fr/titres.rss';
     const url = `${CORS_PROXY}{encodeURIComponent(rssUrl)}`;
