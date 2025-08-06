@@ -1,1 +1,138 @@
-body{font-family:sans-serif;margin:0;background:#f6f6f6}h1{text-align:center;background:#002868;color:white;padding:1rem}.bus-grid,.rer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;padding:1rem}.bus-block{background:#fff;border-left:6px solid #0078d4;border-radius:8px;padding:1rem;display:flex;justify-content:space-between}.line{background:#003399;color:#fff;padding:2px 6px;border-radius:4px;margin-right:6px}.tag{font-size:.8em;color:white;background:#888;padding:2px 6px;border-radius:4px}.news-ticker{background:#002868;color:#fff;padding:10px;margin:1rem}
+/* style.css – pour Dashboard Vincennes */
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f2f4f8;
+  margin: 0;
+  padding: 1rem;
+  color: #222;
+}
+
+h1 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+h2 {
+  font-size: 1.4rem;
+  margin: 1rem 0 0.5rem;
+  color: #004080;
+}
+
+#datetime {
+  text-align: center;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+#dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 1rem;
+}
+
+section {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: 1rem;
+}
+
+.transport-grid, .rer-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sens-block {
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  border-radius: 6px;
+  background-color: #f9fcff;
+}
+
+.sens-title {
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+  color: #0055a5;
+}
+
+.passage-block {
+  background-color: #eaf3ff;
+  padding: 0.5rem;
+  border-left: 4px solid #0077cc;
+  border-radius: 4px;
+  margin-bottom: 0.3rem;
+}
+
+.dernier-train {
+  color: red;
+  font-weight: bold;
+  margin-left: 0.5rem;
+}
+
+.premier-dernier {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.badge-termine {
+  background: #ffdddd;
+  color: #b30000;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.prochain-passage {
+  display: inline-block;
+  margin-top: 0.4rem;
+}
+
+.gares-defile {
+  font-size: 0.85rem;
+  margin-top: 0.4rem;
+  color: #333;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.gares-defile span {
+  color: #aaa;
+}
+
+.velib-block {
+  background: #e0f7fa;
+  padding: 0.5rem;
+  border-radius: 5px;
+  line-height: 1.5;
+}
+
+.news-item {
+  background: #fff3e0;
+  padding: 0.7rem;
+  border-radius: 5px;
+  color: #5d4037;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.news-desc {
+  font-size: 0.9rem;
+  margin-top: 0.2rem;
+}
+
+.erreur-identifiant {
+  background: #ffe0e0;
+  color: #a70000;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
