@@ -1,1 +1,114 @@
-<!DOCTYPE html><html><head><title>RATP Dashboard</title></head><body><div id='app'></div><script type='module' src='/src/main.jsx'></script></body></html>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-control" content="no-cache, no-store, must-revalidate" />
+  <title>Dashboard Transports Vincennes</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #eef1f5, #d3dbe6);
+      height: 100vh;
+      overflow: hidden;
+    }
+    header, footer {
+      background: #003CA6;
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .wrapper {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 10px;
+      padding: 10px;
+      height: calc(100vh - 160px);
+      overflow-y: hidden;
+    }
+    .transport-block {
+      background: #fff;
+      border-radius: 12px;
+      padding: 10px;
+      border: 2px solid #003CA6;
+      display: flex;
+      flex-direction: column;
+    }
+    .transport-block h2 {
+      margin: 0 0 10px;
+      font-size: 1.2em;
+      color: #003CA6;
+    }
+    .departure-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 10px;
+      background: #eef3f8;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      font-size: 0.95em;
+    }
+    .icon-line {
+      background: #555;
+      color: #fff;
+      font-weight: bold;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-right: 8px;
+    }
+    .time-box {
+      background: #000;
+      color: #FFD700;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+      margin-left: 4px;
+      font-size: 0.9em;
+    }
+    .alert-banner {
+      background: #ffdb4d;
+      color: #000;
+      padding: 8px;
+      font-size: 1em;
+      white-space: nowrap;
+      overflow: hidden;
+      animation: slide 20s linear infinite;
+    }
+    @keyframes slide {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+    .service-ended {
+      font-size: 0.85em;
+      color: #999;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div style="display:flex; align-items:center;">
+      <img src="/img/icon_0.png" alt="IDFM" />
+      <img src="/img/icon_1.png" alt="RATP" />
+      <img src="/img/icon_2.png" alt="Hippodrome" />
+      <span style="margin-left: 14px; font-size: 1.2em; font-weight: 500;">Dashboard Transports Vincennes</span>
+    </div>
+    <div id="datetime"></div>
+  </header>
+  <div class="alert-banner" id="traffic-alert">Chargement des alertes trafic...</div>
+  <main class="wrapper" id="transport-container"></main>
+  <footer>
+    <div style="display:flex; align-items:center;">
+      <img src="/img/picto-info.svg" alt="Info" />
+      <span style="font-size: 0.9em;">© 2025 IDFM Dashboard • Powered by PRIM API • Mentions légales</span>
+    </div>
+    <div style="font-size: 0.9em;">Dernière mise à jour : <span id="datetime-footer"></span></div>
+  </footer>
+  <script src="script.js"></script>
+</body>
+</html>
