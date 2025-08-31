@@ -1,29 +1,21 @@
-// === CONFIGURATION GLOBALE ===
 const CORS_PROXY = "https://ratp-proxy.hippodrome-proxy42.workers.dev/?url=";
-const MONITORING_REFS = [
-  { id: "STIF:StopArea:SP:43135:", container: "rer-a-passages", update: "rer-a-update" },
-  { id: "STIF:StopArea:SP:463641:", container: "bus-77-passages", update: "bus-77-update" },
-  { id: "STIF:StopArea:SP:463644:", container: "bus-201-passages", update: "bus-201-update" },
-];
 
-// === HORLOGE ===
+// === Horloge ===
 function updateDateTime() {
   const now = new Date();
-  document.getElementById('datetime').textContent = now.toLocaleString('fr-FR', {
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-    hour: '2-digit', minute: '2-digit'
-  });
+  const opt = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+  document.getElementById('datetime').textContent = now.toLocaleString('fr-FR', opt);
+  document.getElementById('datetime-footer').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-// === MÉTÉO ===
+// === Météo ===
 async function fetchWeather() {
   try {
     const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=48.835&longitude=2.423&current_weather=true");
     const data = await res.json();
     const w = data.current_weather;
-    document.getElementById("weather-summary").innerHTML = getWeatherIcon(w.weathercode) +
-      `🌡 ${w.temperature}°C &nbsp;&nbsp;💨 ${w.windspeed} km/h &nbsp;&nbsp;(${w.weathercode})`;
-    document.getElementById("weather-update").textContent = "Mise à jour : " + (new Date()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    document.getElementById("weather-summary").innerHTML = getWeatherIcon(w.weathercode) + `🌡 ${w.temperature}°C  💨 ${w.windspeed} km/h`;
+    document.getElementById("weather-update").textContent = "Météo à " + (new Date()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   } catch {
     document.getElementById("weather-summary").textContent = "❌ Erreur météo";
   }
@@ -37,123 +29,118 @@ function getWeatherIcon(code) {
   return "❓";
 }
 
-// === VELIB ===
-async function fetchVelibDirect(url, containerId) {
+// === Vélib ===
+async function fetchVelib(url, containerId) {
   try {
     const res = await fetch(url);
     const data = await res.json();
     const s = data[0];
     document.getElementById(containerId).innerHTML = `
-      <div class="velib-block">
-        📍 ${s.name}<br>
-        🚲 ${s.numbikesavailable} mécaniques&nbsp;|&nbsp;🔌 ${s.ebike} électriques<br>
-        🅿️ ${s.numdocksavailable} bornes
-      </div>`;
-    document.getElementById('velib-update').textContent = 'Mise à jour : ' + (new Date()).toLocaleTimeString([], {hour: '2-digit',minute:'2-digit'});
+      📍 ${s.name}<br>
+      🚲 ${s.numbikesavailable} mécaniques | 🔌 ${s.ebike} électriques | 🅿️ ${s.numdocksavailable} bornes`;
   } catch {
     document.getElementById(containerId).textContent = "❌ Erreur Vélib’";
   }
 }
 
-// === ACTUS ===
+// === Actus ===
 async function fetchNewsTicker() {
   try {
     const rssUrl = 'https://www.francetvinfo.fr/titres.rss';
     const url = `${CORS_PROXY}${encodeURIComponent(rssUrl)}`;
     const res = await fetch(url);
-    const xmlText = await res.text();
-    const rss = new DOMParser().parseFromString(xmlText, 'text/xml');
-    const items = rss.querySelectorAll('item');
-    const titles = Array.from(items).slice(0, 5).map(el => el.querySelector('title').textContent.trim()).join(' • ');
-    document.getElementById('newsTicker').innerText = titles;
+    const xml = await res.text();
+    const doc = new DOMParser().parseFromString(xml, "text/xml");
+    const titles = [...doc.querySelectorAll("item")].slice(0, 6).map(e => e.querySelector("title").textContent).join(" • ");
+    document.getElementById("newsTicker").innerText = titles;
   } catch {
-    document.getElementById('newsTicker').innerText = '';
+    document.getElementById("newsTicker").innerText = "❌ Erreur flux actu";
   }
 }
 
-// === TRAFIC / ALERTES ===
-async function fetchTrafficAlerts(containerId) {
+// === Alertes trafic ===
+async function fetchTrafficAlert(lineId, containerId) {
   try {
-    const url = `${CORS_PROXY}${encodeURIComponent('https://prim.iledefrance-mobilites.fr/marketplace/general-message')}`;
+    const url = `${CORS_PROXY}https://prim.iledefrance-mobilites.fr/marketplace/general-message?LineRef=${lineId}`;
     const res = await fetch(url);
     const data = await res.json();
-    const messages = data.Siri?.ServiceDelivery?.GeneralMessageDelivery?.[0]?.InfoMessage || [];
-    if (messages.length === 0) return;
-    const html = messages.map(msg => {
-      const content = msg?.Content?.Message?.[0]?.value || '⚠️ Info trafic';
-      return `<div class="alert-banner">⚠️ ${content}</div>`;
-    }).join('');
-    document.getElementById(containerId).innerHTML = html;
+    const messages = data?.Siri?.ServiceDelivery?.GeneralMessageDelivery?.[0]?.InfoMessage || [];
+
+    const alerts = messages.map(msg => msg?.Content?.Message?.[0]?.value).filter(Boolean);
+    if (alerts.length) {
+      document.getElementById(containerId).innerHTML = `⚠️ ${alerts.join(" • ")}`;
+    } else {
+      document.getElementById(containerId).innerHTML = "";
+    }
   } catch {
-    console.error("Erreur chargement alertes trafic");
+    document.getElementById(containerId).innerHTML = "❌ Erreur alerte trafic";
   }
 }
 
-// === TRANSPORT TEMPS RÉEL ===
-async function fetchAndDisplay(url, containerId, updateId) {
+// === Horaires / passages ===
+async function fetchPassages(stopId, containerId, lineClass) {
   try {
-    const res = await fetch(CORS_PROXY + encodeURIComponent(url));
+    const url = `${CORS_PROXY}https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=${stopId}`;
+    const res = await fetch(url);
     const data = await res.json();
-    const visits = data.Siri?.ServiceDelivery?.StopMonitoringDelivery?.[0]?.MonitoredStopVisit || [];
+    const visits = data?.Siri?.ServiceDelivery?.StopMonitoringDelivery?.[0]?.MonitoredStopVisit || [];
     const now = new Date();
-    const container = document.getElementById(containerId);
-    container.innerHTML = '';
+    const el = document.getElementById(containerId);
+    el.innerHTML = "";
 
-    if (!visits.length || !visits.some(v => new Date(v.MonitoredVehicleJourney.MonitoredCall.ExpectedDepartureTime) > now)) {
-      container.innerHTML = `<div class="aucun-passage">🚫 Service terminé</div>`;
+    if (!visits.length) {
+      el.innerHTML = `<div class="service-ended">🚫 Service terminé</div>`;
       return;
     }
 
-    const groups = {};
+    const grouped = {};
     visits.forEach(v => {
       const dest = v.MonitoredVehicleJourney.DestinationName?.[0]?.value || "Inconnu";
-      groups[dest] = groups[dest] || [];
-      groups[dest].push(v);
+      if (!grouped[dest]) grouped[dest] = [];
+      grouped[dest].push(v);
     });
 
-    for (const [dest, group] of Object.entries(groups)) {
-      group.sort((a, b) => new Date(a.MonitoredVehicleJourney.MonitoredCall.ExpectedDepartureTime) - new Date(b.MonitoredVehicleJourney.MonitoredCall.ExpectedDepartureTime));
-      container.innerHTML += `<div class="sens-block"><div class="sens-title">Vers <b>${dest}</b></div>`;
-      group.forEach((v, idx) => {
+    for (const [dest, group] of Object.entries(grouped)) {
+      group.sort((a, b) =>
+        new Date(a.MonitoredVehicleJourney.MonitoredCall.ExpectedDepartureTime) -
+        new Date(b.MonitoredVehicleJourney.MonitoredCall.ExpectedDepartureTime)
+      );
+      group.slice(0, 4).forEach(v => {
         const mvj = v.MonitoredVehicleJourney;
-        const expected = new Date(mvj.MonitoredCall.ExpectedDepartureTime);
-        const attente = formatAttente(expected, now);
-        const isLast = idx === group.length - 1;
-        container.innerHTML += `
-          <div class="passage-block">
-            ${expected.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})} ${attente} ${isLast ? '<span class="dernier-train">Dernier départ</span>' : ''}
+        const dep = new Date(mvj.MonitoredCall.ExpectedDepartureTime);
+        const delay = Math.round((dep - now) / 60000);
+        const isCancelled = mvj.MonitoredCall.DepartureStatus === "cancelled";
+
+        el.innerHTML += `
+          <div class="departure-line">
+            <span class="icon-line ${lineClass}">${mvj.PublishedLineName}</span>
+            <span class="destination">Vers ${dest}</span>
+            <span class="time-box">${dep.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              (${isCancelled ? "❌ supprimé" : delay < 1 ? "🟢 imminent" : `⏳ dans ${delay} min`})
+            </span>
           </div>`;
       });
-      container.innerHTML += `</div>`;
     }
-
-    if (updateId) document.getElementById(updateId).textContent = "Mise à jour : " + now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-
   } catch {
-    document.getElementById(containerId).textContent = "❌ Erreur chargement passages";
+    document.getElementById(containerId).innerHTML = "❌ Erreur passages";
   }
 }
 
-function formatAttente(expected, now) {
-  const diff = Math.round((expected - now) / 60000);
-  if (diff < 0) return "passé";
-  if (diff < 2) return "🟢 imminent";
-  return `⏳ dans ${diff} min`;
-}
-
-// === INITIALISATION ===
+// === INIT ===
 document.addEventListener("DOMContentLoaded", () => {
   updateDateTime();
   setInterval(updateDateTime, 60000);
 
   fetchWeather();
-  fetchVelibDirect("https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/velib-disponibilite-en-temps-reel/exports/json?lang=fr&qv1=(12163)&timezone=Europe%2FParis", "velib-vincennes");
-  fetchVelibDirect("https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/velib-disponibilite-en-temps-reel/exports/json?lang=fr&qv1=(12128)&timezone=Europe%2FParis", "velib-breuil");
-
   fetchNewsTicker();
-  fetchTrafficAlerts("alertes-trafic");
+  fetchVelib("https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/velib-disponibilite-en-temps-reel/exports/json?q=12163", "velib-vincennes");
+  fetchVelib("https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/velib-disponibilite-en-temps-reel/exports/json?q=12128", "velib-breuil");
 
-  MONITORING_REFS.forEach(ref => {
-    fetchAndDisplay(`https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=${ref.id}`, ref.container, ref.update);
-  });
+  fetchPassages("STIF:StopArea:SP:43135:", "rer-a-passages", "rer-a");
+  fetchPassages("STIF:StopArea:SP:463641:", "bus-77-passages", "bus-77");
+  fetchPassages("STIF:StopArea:SP:463644:", "bus-201-passages", "bus-201");
+
+  fetchTrafficAlert("STIF:Line::C01742:", "rer-a-alert");
+  fetchTrafficAlert("STIF:Line::C02251:", "bus-77-alert");
+  fetchTrafficAlert("STIF:Line::C01219:", "bus-201-alert");
 });
