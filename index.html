@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-control" content="no-cache, no-store, must-revalidate" />
+  <title>Dashboard Transports Vincennes</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <div class="logos">
+      <img src="img/idfm.png" alt="IDFM" />
+      <img src="img/ratp.png" alt="RATP" />
+      <img src="img/vhp.png" alt="Hippodrome" />
+      <span class="title">Dashboard Transports Vincennes</span>
+    </div>
+    <div id="datetime"></div>
+  </header>
+
+  <div class="alert-banner" id="traffic-alert">Chargement des alertes trafic...</div>
+
+  <main class="grid-container">
+    <!-- RER A -->
+    <section class="transport-block" id="rer-a-section">
+      <h2>🚉 RER A – Joinville-le-Pont</h2>
+      <div id="rer-a-passages"></div>
+      <div id="rer-a-update" class="update-time"></div>
+    </section>
+
+    <!-- Bus 77 -->
+    <section class="transport-block" id="bus-77-section">
+      <h2>🚌 Bus 77 – Hippodrome de Vincennes</h2>
+      <div id="bus-77-passages"></div>
+      <div id="bus-77-update" class="update-time"></div>
+    </section>
+
+    <!-- Bus 201 -->
+    <section class="transport-block" id="bus-201-section">
+      <h2>🚌 Bus 201 – École du Breuil</h2>
+      <div id="bus-201-passages"></div>
+      <div id="bus-201-update" class="update-time"></div>
+    </section>
+
+    <!-- Vélib' -->
+    <section class="transport-block">
+      <h2>🚲 Vélib’ disponibles</h2>
+      <div id="velib-vincennes"></div>
+      <div id="velib-breuil"></div>
+      <div id="velib-update" class="update-time"></div>
+    </section>
+
+    <!-- Météo -->
+    <section class="transport-block">
+      <h2>🌤 Météo locale</h2>
+      <div id="weather-summary"></div>
+      <div id="weather-update" class="update-time"></div>
+    </section>
+
+    <!-- Actu -->
+    <section class="transport-block">
+      <h2>📰 Actu France Info</h2>
+      <div id="newsTicker" class="news-ticker"></div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-left">
+      <img src="img/picto-info.svg" alt="Info" />
+      <span>© 2025 IDFM Dashboard • Powered by PRIM API • Mentions légales</span>
+    </div>
+    <div class="footer-right">
+      Dernière mise à jour : <span id="datetime-footer"></span>
+    </div>
+  </footer>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
