@@ -1,82 +1,108 @@
-   * { box-sizing: border-box; }
-    html, body {
-      margin: 0; padding: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to bottom, #eef1f5, #d3dbe6);
-      height: 100vh;
-      overflow: hidden;
-    }
-    header, footer {
-      background: #003CA6;
-      color: white;
-      padding: 10px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .wrapper {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-      gap: 10px;
-      padding: 10px;
-      height: calc(100vh - 160px);
-      overflow-y: hidden;
-    }
-    .transport-block {
-      background: #fff;
-      border-radius: 12px;
-      padding: 10px;
-      border: 2px solid #003CA6;
-      display: flex;
-      flex-direction: column;
-    }
-    .transport-block h2 {
-      margin: 0 0 10px;
-      font-size: 1.2em;
-      color: #003CA6;
-    }
-    .departure-line {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 6px 10px;
-      background: #eef3f8;
-      border-radius: 8px;
-      margin-bottom: 6px;
-      font-size: 0.95em;
-    }
-    .icon-line {
-      background: #555;
-      color: #fff;
-      font-weight: bold;
-      padding: 2px 8px;
-      border-radius: 4px;
-      margin-right: 8px;
-    }
-    .time-box {
-      background: #000;
-      color: #FFD700;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-weight: bold;
-      margin-left: 4px;
-      font-size: 0.9em;
-    }
-    .alert-banner {
-      background: #ffdb4d;
-      color: #000;
-      padding: 8px;
-      font-size: 1em;
-      white-space: nowrap;
-      overflow: hidden;
-      animation: slide 20s linear infinite;
-    }
-    @keyframes slide {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
-    }
-    .service-ended {
-      font-size: 0.85em;
-      color: #999;
-      font-style: italic;
-    }
+/* RESET + BASE */
+* {
+  box-sizing: border-box;
+}
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(to bottom, #eef1f5, #d3dbe6);
+  height: 100vh;
+  overflow: hidden;
+}
+header, footer {
+  background: #003CA6;
+  color: white;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+footer img {
+  height: 24px;
+  margin-right: 10px;
+}
+
+/* WRAPPER + RESPONSIVE */
+.wrapper {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 10px;
+  padding: 10px;
+  height: calc(100vh - 160px);
+  overflow-y: hidden;
+}
+.transport-block {
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px;
+  border: 2px solid #003CA6;
+  display: flex;
+  flex-direction: column;
+}
+.transport-block h2 {
+  margin: 0 0 10px;
+  font-size: 1.1em;
+  color: #003CA6;
+}
+
+/* HORAIRES */
+.departure-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  background: #eef3f8;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  font-size: 0.92em;
+}
+.icon-line {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 0.9em;
+  margin-right: 10px;
+}
+.time-box {
+  background: #000;
+  color: #FFD700;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+  margin-left: 4px;
+}
+
+/* CODES COULEUR */
+.rer-a { background: #003CA6; color: #fff; }
+.bus-77 { background: #FFCE00; color: #000; }
+.bus-201 { background: #009645; color: #fff; }
+
+/* ALERTES */
+.alert-banner {
+  background: #ffdb4d;
+  color: #000;
+  padding: 8px;
+  font-size: 1em;
+  white-space: nowrap;
+  overflow: hidden;
+  animation: slide 20s linear infinite;
+}
+@keyframes slide {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+.service-ended {
+  font-size: 0.85em;
+  color: #999;
+  font-style: italic;
+}
+
+/* MODULES SECONDAIRES */
+#datetime, #datetime-footer {
+  font-size: 0.95em;
+}
+#weather-summary, #velib-vincennes, #velib-breuil, #newsTicker {
+  font-size: 0.9em;
+  padding: 8px 16px;
+}
