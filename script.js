@@ -1,12 +1,11 @@
-// === CONFIGURATION GLOBALE ===
 const CORS_PROXY = "https://ratp-proxy.hippodrome-proxy42.workers.dev/?url=";
+
 const MONITORING_REFS = [
-  { id: "STIF:StopArea:SP:43135:", container: "rer-a-passages", update: "rer-a-update" },
-  { id: "STIF:StopArea:SP:463641:", container: "bus-77-passages", update: "bus-77-update" },
-  { id: "STIF:StopArea:SP:463644:", container: "bus-201-passages", update: "bus-201-update" },
+  { id: "STIF:StopArea:SP:43135:", container: "rer-a-passages", update: "rer-a-update", lineRef: "C01742" },
+  { id: "STIF:StopArea:SP:463641:", container: "bus-77-passages", update: "bus-77-update", lineRef: "C02251" },
+  { id: "STIF:StopArea:SP:463644:", container: "bus-201-passages", update: "bus-201-update", lineRef: "C01219" },
 ];
 
-// === HORLOGE ===
 function updateDateTime() {
   const now = new Date();
   document.getElementById('datetime').textContent = now.toLocaleString('fr-FR', {
@@ -15,14 +14,13 @@ function updateDateTime() {
   });
 }
 
-// === MÉTÉO ===
 async function fetchWeather() {
   try {
     const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=48.835&longitude=2.423&current_weather=true");
     const data = await res.json();
     const w = data.current_weather;
     document.getElementById("weather-summary").innerHTML = getWeatherIcon(w.weathercode) +
-      `🌡 ${w.temperature}°C &nbsp;&nbsp;💨 ${w.windspeed} km/h &nbsp;&nbsp;(${w.weathercode})`;
+      `🌡 ${w.temperature}°C &nbsp;&nbsp;💨 ${w.windspeed} km/h`;
     document.getElementById("weather-update").textContent = "Mise à jour : " + (new Date()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
   } catch {
     document.getElementById("weather-summary").textContent = "❌ Erreur météo";
@@ -37,7 +35,6 @@ function getWeatherIcon(code) {
   return "❓";
 }
 
-// === VELIB ===
 async function fetchVelibDirect(url, containerId) {
   try {
     const res = await fetch(url);
@@ -55,13 +52,10 @@ async function fetchVelibDirect(url, containerId) {
   }
 }
 
-// === ACTUS FRANCE INFO ===
-let newsItems = [], currentNewsIndex = 0;
-
 async function fetchNewsTicker() {
   try {
     const rssUrl = 'https://www.francetvinfo.fr/titres.rss';
-    const url = CORS_PROXY + encodeURIComponent(rssUrl);
+    const url = `${CORS_PROXY}${encodeURIComponent(rssUrl)}`;
     const res = await fetch(url);
     const xmlText = await res.text();
     const rss = new DOMParser().parseFromString(xmlText, 'text/xml');
@@ -74,18 +68,6 @@ async function fetchNewsTicker() {
   }
 }
 
-function showNewsItem(containerId) {
-  if (!newsItems.length) return;
-  const item = newsItems[currentNewsIndex];
-  const desc = item.description.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
-  const shortDesc = desc.length > 220 ? desc.slice(0,217).replace(/ [^ ]*$/, '') + "…" : desc;
-  document.getElementById(containerId).innerHTML = `<div class="news-item">
-    📰 <b>${item.title}</b><div class="news-desc">${shortDesc}</div></div>`;
-  currentNewsIndex = (currentNewsIndex + 1) % newsItems.length;
-  setTimeout(() => showNewsItem(containerId), 9000);
-}
-
-// === TRANSPORT (PRIM STOP MONITORING) ===
 async function fetchAndDisplay(url, containerId, updateId) {
   try {
     const res = await fetch(CORS_PROXY + encodeURIComponent(url));
@@ -117,21 +99,37 @@ async function fetchAndDisplay(url, containerId, updateId) {
         const isLast = idx === group.length - 1;
         container.innerHTML += `
           <div class="passage-block">
-            🕐 ${expected.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}
-            (${attente}) ${isLast ? '<span class="dernier-train">Dernier départ</span>' : ''}
+            ${expected.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}
+            (${attente}) ${isLast ? '<span class="dernier-train">Dernier</span>' : ''}
           </div>`;
       });
       container.innerHTML += `</div>`;
     }
 
     if (updateId) document.getElementById(updateId).textContent = "Mise à jour : " + now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-
   } catch {
     document.getElementById(containerId).textContent = "❌ Erreur chargement passages";
   }
 }
 
-// === UTILS ===
+async function fetchTrafficAlert(lineRef, containerId) {
+  try {
+    const url = `${CORS_PROXY}${encodeURIComponent(`https://prim.iledefrance-mobilites.fr/marketplace/general-message?LineRef=${lineRef}`)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const alerts = data.Siri?.ServiceDelivery?.GeneralMessageDelivery?.[0]?.InfoMessage || [];
+    const container = document.getElementById(containerId);
+    if (alerts.length === 0) {
+      container.innerHTML = '';
+      return;
+    }
+    const msg = alerts.map(a => a?.Content?.Message?.[0]?.value || '').join(' | ');
+    container.innerHTML = `<div class="traffic-banner">⚠️ ${msg}</div>`;
+  } catch (e) {
+    console.error("Erreur trafic", e);
+  }
+}
+
 function formatAttente(expected, now) {
   const diff = Math.round((expected - now) / 60000);
   if (diff < 0) return "passé";
@@ -139,40 +137,17 @@ function formatAttente(expected, now) {
   return `⏳ dans ${diff} min`;
 }
 
-// === MONITORING REF CHECK (1 seule fois) ===
-let monitoringRefsChecked = false;
-
-async function checkMonitoringRefsOnce() {
-  if (monitoringRefsChecked) return;
-  monitoringRefsChecked = true;
-  try {
-    const url = CORS_PROXY + encodeURIComponent('https://prim.iledefrance-mobilites.fr/marketplace/referentiel/stop-areas');
-    const res = await fetch(url);
-    const data = await res.json();
-    const validRefs = data.stop_areas.map(sa => sa.StopAreaId);
-    MONITORING_REFS.forEach(ref => {
-      if (!validRefs.includes(ref.id)) {
-        console.warn(`❗ Identifiant non valide : ${ref.id}`);
-        document.getElementById(ref.container).innerHTML = "❌ Identifiant non valide";
-      }
-    });
-  } catch {
-    console.error("❌ Erreur vérification MonitoringRef");
-  }
-}
-
-// === INITIALISATION ===
 document.addEventListener("DOMContentLoaded", () => {
   updateDateTime();
   setInterval(updateDateTime, 60 * 1000);
-
   fetchWeather();
+  fetchNewsTicker();
+
   fetchVelibDirect("https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/velib-disponibilite-en-temps-reel/exports/json?lang=fr&qv1=(12163)&timezone=Europe%2FParis", "velib-vincennes");
   fetchVelibDirect("https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/velib-disponibilite-en-temps-reel/exports/json?lang=fr&qv1=(12128)&timezone=Europe%2FParis", "velib-breuil");
 
-  fetchNewsTicker();
-  checkMonitoringRefsOnce();
   MONITORING_REFS.forEach(ref => {
     fetchAndDisplay(`https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=${ref.id}`, ref.container, ref.update);
+    fetchTrafficAlert(ref.lineRef, `${ref.container}-alert`);
   });
 });
