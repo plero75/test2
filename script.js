@@ -61,7 +61,7 @@ let newsItems = [], currentNewsIndex = 0;
 async function fetchNewsTicker() {
   try {
     const rssUrl = 'https://www.francetvinfo.fr/titres.rss';
-    const url = `${CORS_PROXY}{encodeURIComponent(rssUrl)}`;
+    const url = CORS_PROXY + encodeURIComponent(rssUrl);
     const res = await fetch(url);
     const xmlText = await res.text();
     const rss = new DOMParser().parseFromString(xmlText, 'text/xml');
@@ -170,8 +170,7 @@ document.addEventListener("DOMContentLoaded", () => {
   fetchVelibDirect("https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/velib-disponibilite-en-temps-reel/exports/json?lang=fr&qv1=(12163)&timezone=Europe%2FParis", "velib-vincennes");
   fetchVelibDirect("https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/velib-disponibilite-en-temps-reel/exports/json?lang=fr&qv1=(12128)&timezone=Europe%2FParis", "velib-breuil");
 
-  fetchNewsTicker("newsTicker");
-
+  fetchNewsTicker();
   checkMonitoringRefsOnce();
   MONITORING_REFS.forEach(ref => {
     fetchAndDisplay(`https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=${ref.id}`, ref.container, ref.update);
