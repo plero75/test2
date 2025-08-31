@@ -3,140 +3,71 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="Cache-control" content="no-cache, no-store, must-revalidate" />
   <title>Dashboard Transports Vincennes</title>
-  <style>
-    * { box-sizing: border-box; }
-    html, body {
-      margin: 0; padding: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to bottom, #eef1f5, #d3dbe6);
-      height: 100vh;
-      overflow: hidden;
-    }
-    header, footer {
-      background: #003CA6;
-      color: white;
-      padding: 10px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .wrapper {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-      gap: 10px;
-      padding: 10px;
-      height: calc(100vh - 160px);
-      overflow-y: hidden;
-    }
-    .transport-block {
-      background: #fff;
-      border-radius: 12px;
-      padding: 10px;
-      border: 2px solid #003CA6;
-      display: flex;
-      flex-direction: column;
-    }
-    .transport-block h2 {
-      margin: 0 0 10px;
-      font-size: 1.2em;
-      color: #003CA6;
-    }
-    .departure-line {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 6px 10px;
-      background: #eef3f8;
-      border-radius: 8px;
-      margin-bottom: 6px;
-      font-size: 0.95em;
-    }
-    .icon-line {
-      background: #555;
-      color: #fff;
-      font-weight: bold;
-      padding: 2px 8px;
-      border-radius: 4px;
-      margin-right: 8px;
-    }
-    .time-box {
-      background: #000;
-      color: #FFD700;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-weight: bold;
-      margin-left: 4px;
-      font-size: 0.9em;
-    }
-    .alert-banner {
-      background: #ffdb4d;
-      color: #000;
-      padding: 8px;
-      font-size: 1em;
-      white-space: nowrap;
-      overflow: hidden;
-      animation: slide 20s linear infinite;
-    }
-    @keyframes slide {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
-    }
-    .service-ended {
-      font-size: 0.85em;
-      color: #999;
-      font-style: italic;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header>
-    <div style="display:flex; align-items:center;">
-      <img src="/test2/icons/vhp.png" alt="IDFM" />
-      <img src="/test2/icons/vhp.png" alt="RATP" />
-      <img src="/test2/icons/vhp.png" alt="Hippodrome" />
-      <span style="margin-left: 14px; font-size: 1.2em; font-weight: 500;">Dashboard Transports Vincennes</span>
+    <div class="header-left">
+      <img src="img/logo-idfm.svg" alt="IDFM" />
+      <img src="img/logo-ratp.svg" alt="RATP" />
+      <img src="img/logo-vhp.svg" alt="VHP" />
+      <span>Dashboard Transports Vincennes</span>
     </div>
     <div id="datetime"></div>
   </header>
+
   <div class="alert-banner" id="traffic-alert">Chargement des alertes trafic...</div>
-<!-- 📅 Horloge -->
-<div id="datetime"></div>
 
-<!-- ☀️ Météo -->
-<div id="weather-summary"></div>
-<div id="weather-update"></div>
+  <main class="wrapper">
+    <section class="transport-block" id="weather-block">
+      <h2>☀️ Météo</h2>
+      <div id="weather-summary"></div>
+      <div id="weather-update"></div>
+    </section>
 
-<!-- 🚲 Vélib -->
-<div id="velib-vincennes"></div>
-<div id="velib-breuil"></div>
-<div id="velib-update"></div>
+    <section class="transport-block" id="velib-block">
+      <h2>🚲 Vélib’</h2>
+      <div id="velib-vincennes"></div>
+      <div id="velib-breuil"></div>
+      <div id="velib-update"></div>
+    </section>
 
-<!-- 📰 News -->
-<div id="newsTicker"></div>
+    <section class="transport-block" id="news-block">
+      <h2>📰 France Info</h2>
+      <div id="newsTicker"></div>
+    </section>
 
-<!-- 🚦 Transports + Alertes -->
-<div id="rer-a-passages"></div>
-<div id="rer-a-alert"></div>
-<div id="rer-a-update"></div>
+    <section class="transport-block" id="rer-block">
+      <h2>🚆 RER A – Joinville-le-Pont</h2>
+      <div id="rer-a-passages"></div>
+      <div id="rer-a-alert"></div>
+      <div id="rer-a-update"></div>
+    </section>
 
-<div id="bus-77-passages"></div>
-<div id="bus-77-alert"></div>
-<div id="bus-77-update"></div>
+    <section class="transport-block" id="bus77-block">
+      <h2>🚌 Bus 77 – Hippodrome de Vincennes</h2>
+      <div id="bus-77-passages"></div>
+      <div id="bus-77-alert"></div>
+      <div id="bus-77-update"></div>
+    </section>
 
-<div id="bus-201-passages"></div>
-<div id="bus-201-alert"></div>
-<div id="bus-201-update"></div>
+    <section class="transport-block" id="bus201-block">
+      <h2>🚌 Bus 201 – École du Breuil</h2>
+      <div id="bus-201-passages"></div>
+      <div id="bus-201-alert"></div>
+      <div id="bus-201-update"></div>
+    </section>
+  </main>
 
-  <main class="wrapper" id="transport-container"></main>
   <footer>
-    <div style="display:flex; align-items:center;">
-      <img src="/img/picto-info.svg" alt="Info" />
-      <span style="font-size: 0.9em;">© 2025 IDFM Dashboard • Powered by PRIM API • Mentions légales</span>
+    <div>
+      <img src="img/picto-info.svg" alt="Info" />
+      <span>© 2025 IDFM Dashboard – Mentions légales</span>
     </div>
-    <div style="font-size: 0.9em;">Dernière mise à jour : <span id="datetime-footer"></span></div>
+    <div>Dernière mise à jour : <span id="datetime-footer"></span></div>
   </footer>
-<script type="module" src="script.js"></script>
+
+  <script src="script.js" type="module"></script>
 </body>
 </html>
