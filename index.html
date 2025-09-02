@@ -1,61 +1,191 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Dashboard Mobilité – Hippodrome Vincennes</title>
-<link rel="stylesheet" href="style.css" />
-<script type="module" src="script.js" defer></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-control" content="no-cache, no-store, must-revalidate" />
+  <title>Dashboard Transports Vincennes</title>
+  <style>* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: linear-gradient(to bottom, #eef1f5, #d3dbe6);
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* HEADER / FOOTER */
+header, footer {
+  background: #003CA6;
+  color: #fff;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+header img { height: 28px; margin-right: 10px; }
+#datetime { font-size: 1.25rem; font-weight: 700; }
+
+/* BANNIÈRE ALERTES GLOBALES */
+.alert-banner {
+  background: #ffdb4d;
+  color: #000;
+  padding: 8px 14px;
+  font-size: 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  animation: slide 22s linear infinite;
+}
+@keyframes slide {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* WRAPPER GRILLE */
+.wrapper {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  gap: 12px;
+  padding: 12px;
+  height: calc(100vh - 160px);
+  overflow-y: auto;
+}
+
+/* BLOCS */
+.transport-block {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px;
+  border: 2px solid #003CA6;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-self: start; /* hauteurs libres */
+}
+.transport-block h2 {
+  margin: 0 0 6px;
+  font-size: 1.2rem;
+  color: #003CA6;
+}
+
+.service-ended { font-size: .85rem; color: #667; }
+
+/* LIGNES / PASSAGES */
+.sens-block { margin-bottom: 8px; }
+.sens-title { font-weight: 700; color: #0e1e6b; margin: 4px 0; }
+
+.line-row {
+  background: #eef3f8;
+  border-radius: 10px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.right { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+
+.icon-line {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  padding: 3px 8px;
+  color: #fff;
+  font-weight: 700;
+  border-radius: 6px;
+  background: #555;
+}
+.dest { font-weight: 600; color: #0e1e6b; }
+.info-small { font-size: .85rem; color: #777; margin-left: 6px; }
+
+.time-badge {
+  background: #000;
+  color: #FFD700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.time-badge.dim { opacity: .85; }
+
+/* FOOTER NEWS */
+footer { gap: 10px; }
+.news-ticker {
+  flex: 1;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: .95rem;
+}
+
+/* PETITS ÉCRANS */
+@media (max-width: 480px) {
+  .wrapper { grid-template-columns: 1fr; }
+}
+
+  </style>
 </head>
 <body>
   <header>
-    <h1>🚦 Dashboard Mobilité – Hippodrome Vincennes <span id="datetime"></span></h1>
+    <div style="display:flex; align-items:center;">
+      <img src="/img/icon_0.png" alt="IDFM" />
+      <img src="/img/icon_1.png" alt="RATP" />
+      <img src="/img/icon_2.png" alt="Hippodrome" />
+      <span style="margin-left: 14px; font-size: 1.2em; font-weight: 500;">Dashboard Transports Vincennes</span>
+    </div>
+    <div id="datetime"></div>
   </header>
-  <main class="grid">
-    <section id="rer" class="transport-block">
-      <div class="header">
-        <div class="logo logo-rer">A</div>
-        <h2>RER A - Joinville-le-Pont</h2>
-        <div class="directions">Vers La Défense / Marne-la-Vallée</div>
-      </div>
-      <div id="rer-alert" class="alert-banner"></div>
-      <div id="rer-schedules" class="schedules"></div>
-    </section>
-
-    <section id="bus201" class="transport-block">
-      <div class="header">
-        <div class="logo logo-bus201">201</div>
-        <h2>Bus 201 - Pyramide – École du Breuil</h2>
-        <div class="directions">Vers Château de Vincennes / Maisons-Alfort</div>
-      </div>
-      <div id="bus201-alert" class="alert-banner"></div>
-      <div id="bus201-schedules" class="schedules"></div>
-    </section>
-
-    <section id="bus77" class="transport-block">
-      <div class="header">
-        <div class="logo logo-bus77">77</div>
-        <h2>Bus 77 - Hippodrome de Vincennes</h2>
-        <div class="directions">Vers Joinville-le-Pont / Porte de Vincennes</div>
-      </div>
-      <div id="bus77-alert" class="alert-banner"></div>
-      <div id="bus77-schedules" class="schedules"></div>
-    </section>
-
-    <section id="meteo" class="transport-block">
-      <h2>🌤 Météo locale</h2>
-    </section>
-
-    <section id="courses" class="transport-block">
-      <h2>🏇 Courses à Vincennes</h2>
-      <div id="nextRace"></div>
-      <div id="courses-content"></div>
-    </section>
-
-    <section id="newsTicker" class="transport-block">
-      <h2>📰 Actualités</h2>
-      <div id="news-content"></div>
-    </section>
+  <div id="alertes-trafic"></div>
+  <main class="wrapper">
+    <div class="transport-block">
+      <h2>🚉 Joinville-le-Pont – RER A</h2>
+      <div id="rer-a-passages"></div>
+      <div id="rer-a-update" class="service-ended"></div>
+    </div>
+    <div class="transport-block">
+      <h2>🚌 Hippodrome – Bus 77</h2>
+      <div id="bus-77-passages"></div>
+      <div id="bus-77-update" class="service-ended"></div>
+    </div>
+    <div class="transport-block">
+      <h2>🌲 École du Breuil – Bus 201</h2>
+      <div id="bus-201-passages"></div>
+      <div id="bus-201-update" class="service-ended"></div>
+    </div>
+    <div class="transport-block">
+      <h2>🌦 Météo locale</h2>
+      <div id="weather-summary">Chargement météo...</div>
+      <div id="weather-update" class="service-ended"></div>
+    </div>
+    <div class="transport-block">
+      <h2>🚲 Vélib – Vincennes</h2>
+      <div id="velib-vincennes"></div>
+    </div>
+    <div class="transport-block">
+      <h2>🚲 Vélib – Breuil</h2>
+      <div id="velib-breuil"></div>
+      <div id="velib-update" class="service-ended"></div>
+    </div>
+    <div class="transport-block">
+      <h2>📰 Dernières actus</h2>
+      <div id="newsTicker" class="service-ended">Chargement...</div>
+    </div>
   </main>
+  <footer>
+    <div style="display:flex; align-items:center;">
+      <img src="/img/picto-info.svg" alt="Info" />
+      <span style="font-size: 0.9em;">© 2025 IDFM Dashboard • Powered by PRIM API • Mentions légales</span>
+    </div>
+    <div style="font-size: 0.9em;">Dernière mise à jour : <span id="datetime-footer"></span></div>
+  </footer>
+  <script src="script.js"></script>
 </body>
 </html>
