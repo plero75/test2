@@ -374,6 +374,6 @@ document.addEventListener("DOMContentLoaded", () => {
   setInterval(refreshJoinvilleBus,60_000);
 
   // Vélib si besoin :
-  // fetchVelib("https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/velib-disponibilite-en-temps-reel/exports/json?lang=fr&qv1=(12163)", "velib-vincennes");
-  // fetchVelib("https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/velib-disponibilite-en-temps-reel/exports/json?lang=fr&qv1=(12128)", "velib-breuil");
+  fetchVelib("https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/velib-disponibilite-en-temps-reel/exports/json?lang=fr&qv1=(12163)", "velib-vincennes");
+  fetchVelib("https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/velib-disponibilite-en-temps-reel/exports/json?lang=fr&qv1=(12128)", "velib-breuil");
 });
