@@ -1,40 +1,47 @@
-uveau
-+37
--0
+# Dashboard Leon.gp Unifié – Hippodrome Paris‑Vincennes
 
-# Tableau de bord Mobilité
-
-Ce projet fournit une page web affichant des informations en temps réel pour l'Hippodrome de Vincennes.
-
-## Prérequis
-
-- **Node.js** (version 16 ou supérieure)
-- **Python 3**
-- Installer les dépendances Python :
-  ```bash
-  pip install -r requirements.txt
-  ```
-- Installer les dépendances Node :
-  ```bash
-  npm install
-  ```
-
-## Servir l'application
-
-L'application est composée de fichiers HTML, CSS et JavaScript statiques. Pour les tester en local, lancez un petit serveur HTTP depuis la racine du projet :
+## Installation
 
 ```bash
-python3 -m http.server 8000
+npm install
+npm run start
+# Ouvre http://localhost:3000
 ```
 
-Ouvrez ensuite votre navigateur à l'adresse `http://localhost:8000`.
+## Description
 
-## Mise à jour des données GTFS
+Affichage **unifié** temps réel sur une seule page avec rotations internes :
 
-Les horaires optimisés utilisés par l'application sont générés à partir des données officielles GTFS. Pour les actualiser :
+### Layout
 
-```bash
-python3 script/update-gtfs.py
+```
+┌─────────────────┬─────────┐
+│     RER A       │ Météo/  │
+│   Joinville     │ Trafic  │
+├─────────────────┤ (15s)   │
+│   Bus Toutes    ├─────────┤
+│    Lignes       │ Vélib'  │
+├─────────────────┴─────────┤
+│    Actualités (20s)       │
+└───────────────────────────┘
 ```
 
-Le script téléchargera les données les plus récentes et créera/mettre à jour `static/horaires_export.json`.
+### Rotations
+
+- **Météo ↔ Trafic** : Alternance toutes les 15s  
+- **Actualités** : 1 article complet (titre + texte) pendant 20s
+- **Données** : Refresh toutes les 30s
+
+### APIs & Configuration
+
+Identiques à la version précédente :
+- **PRIM/IDFM** avec proxy CORS
+- **StopArea 70640** pour toutes les lignes Joinville
+- **Météo + Vélib + Trafic + RSS France Info**
+
+## Avantages
+
+✅ **Tout visible en même temps** - pas de perte d'info  
+✅ **Rotations ciblées** - météo/trafic et actualités détaillées  
+✅ **Layout optimisé** - transport prioritaire, infos secondaires  
+✅ **Lisibilité maximale** - style Leon.gp conservé
