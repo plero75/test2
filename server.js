@@ -2,10 +2,73 @@ import express from 'express';
 import fetch from 'node-fetch';
 import cors from 'cors';
 import Parser from 'rss-parser';
+import path from 'node:path';
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { HttpProxyAgent } from 'http-proxy-agent';
+import { HttpsProxyAgent } from 'https-proxy-agent';
+import { getProxyForUrl } from 'proxy-from-env';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors());
-app.use(express.static('public'));
+
+const PUBLIC_DIR = path.join(__dirname, 'public');
+if (fs.existsSync(PUBLIC_DIR)) {
+  app.use(express.static(PUBLIC_DIR));
+}
+
+const PUBLIC_INDEX = path.join(PUBLIC_DIR, 'index.html');
+const ROOT_INDEX = path.join(__dirname, 'index.html');
+
+app.get('/', (req, res, next) => {
+  const filePath = fs.existsSync(PUBLIC_INDEX) ? PUBLIC_INDEX : ROOT_INDEX;
+  res.sendFile(filePath, err => {
+    if (err) next(err);
+  });
+});
+
+const rssParser = new Parser();
+
+const proxyAgentCache = new Map();
+
+function resolveProxyAgent(url) {
+  const proxy = getProxyForUrl(url);
+  if (!proxy) return undefined;
+
+  const { protocol } = new URL(url);
+  const cacheKey = `${proxy}|${protocol}`;
+  if (!proxyAgentCache.has(cacheKey)) {
+    proxyAgentCache.set(
+      cacheKey,
+      protocol === 'http:' ? new HttpProxyAgent(proxy) : new HttpsProxyAgent(proxy)
+    );
+  }
+  return proxyAgentCache.get(cacheKey);
+}
+
+function buildFetchOptions(url, options = {}) {
+  const agent = resolveProxyAgent(url);
+  if (agent) {
+    return { ...options, agent };
+  }
+  return options;
+}
+
+async function fetchText(url, options = {}) {
+  const response = await fetch(url, buildFetchOptions(url, options));
+  if (!response.ok) throw new Error('Fetch ' + url);
+  return await response.text();
+}
+
+async function fetchJSON(url, options = {}) {
+  const headers = { accept: 'application/json', ...(options.headers || {}) };
+  const response = await fetch(url, buildFetchOptions(url, { ...options, headers }));
+  if (!response.ok) throw new Error('Fetch ' + url);
+  return await response.json();
+}
 
 // ========= CONFIG =========
 const PROXY = "https://ratp-proxy.hippodrome-proxy42.workers.dev/?url=";
@@ -21,9 +84,6 @@ const STOP_IDS = {
   BUS_201: "STIF:StopArea:SP:463644:",   // École du Breuil (201 ou autre selon PRIM)
   JOINVILLE_AREA: "STIF:StopArea:SP:70640:" // Joinville (toutes lignes)
 };
-
-async function fetchText(url){ const r = await fetch(url); if(!r.ok) throw new Error('Fetch '+url); return await r.text(); }
-async function fetchJSON(url){ const r = await fetch(url); if(!r.ok) throw new Error('Fetch '+url); return await r.json(); }
 
 app.get('/api/nextDepartures', async (req, res) => {
   try {
@@ -55,29 +115,52 @@ app.get('/api/nextDepartures', async (req, res) => {
 
 app.get('/api/infos', async (req, res) => {
   try {
-    const [meteo, velib, rssXML, baro] = await Promise.all([
+    const [meteoRes, velibRes, rssRes, baroRes] = await Promise.allSettled([
       fetchJSON(WEATHER_URL),
       fetchJSON(VELIB_URL),
-      new Parser().parseURL(RSS_URL),
+      fetchText(RSS_URL),
       fetchText(SYTADIN_URL)
     ]);
 
-    const trafic = parseSytadinBaro(baro);
+    const meteo = meteoRes.status === 'fulfilled' ? meteoRes.value : null;
+    if (meteoRes.status === 'rejected') console.error('Meteo fetch error:', meteoRes.reason);
+
+    const velib = velibRes.status === 'fulfilled' ? velibRes.value : null;
+    if (velibRes.status === 'rejected') console.error('Velib fetch error:', velibRes.reason);
+
+    const rssXMLText = rssRes.status === 'fulfilled' ? rssRes.value : null;
+    if (rssRes.status === 'rejected') console.error('RSS fetch error:', rssRes.reason);
+
+    const baro = baroRes.status === 'fulfilled' ? baroRes.value : null;
+    if (baroRes.status === 'rejected') console.error('Sytadin fetch error:', baroRes.reason);
+
+    let rssData = { items: [] };
+    if (rssXMLText) {
+      try {
+        rssData = await rssParser.parseString(rssXMLText);
+      } catch (parseErr) {
+        console.error('RSS parse error:', parseErr);
+      }
+    }
+
+    const trafic = baro ? parseSytadinBaro(baro) : { km: null, note: '' };
 
     // Actualités avec titre + description/summary
-    const actus = (rssXML?.items||[]).slice(0, 10).map(item => ({
+    const actus = (rssData?.items || []).slice(0, 10).map(item => ({
       title: item.title || '',
       description: item.contentSnippet || item.summary || item.content || '',
       link: item.link || ''
     }));
 
     res.json({
-      meteo: { 
-        temp: meteo?.current_weather?.temperature, 
-        desc: "Conditions actuelles", 
-        extra: `Vent ${meteo?.current_weather?.windspeed || 0} km/h` 
-      },
-      velib: parseVelib(velib),
+      meteo: meteo
+        ? {
+            temp: meteo?.current_weather?.temperature,
+            desc: "Conditions actuelles",
+            extra: `Vent ${meteo?.current_weather?.windspeed || 0} km/h`
+          }
+        : null,
+      velib: velib ? parseVelib(velib) : null,
       trafic,
       actus,
       alerte: null
