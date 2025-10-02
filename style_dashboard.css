@@ -1,0 +1,48 @@
+body {
+  font-family: sans-serif;
+  margin: 0; padding: 0;
+  background: #f7f7f7;
+}
+.dashboard {
+  display: flex; flex-direction: column;
+  height: 100vh; padding: 10px;
+}
+header, footer {
+  background: #003366; color: white;
+  padding: 10px; text-align: center;
+}
+.title-line {
+  font-weight: bold; margin-bottom: 8px;
+}
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 10px; padding: 10px;
+  flex: 1; overflow-y: auto;
+}
+.dashboard-card {
+  background: white; border-radius: 8px;
+  padding: 10px; box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
+.icon-inline {
+  height: 20px; vertical-align: middle; margin-right: 5px;
+}
+ul {
+  list-style: none; padding: 0; margin: 0;
+}
+ul li {
+  margin: 4px 0;
+}
+.defile-arrets {
+  font-size: 0.9em; color: #555;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.trafic-ok {
+  color: green; font-weight: bold;
+}
+.trafic-moyen {
+  color: orange; font-weight: bold;
+}
+.trafic-saturé {
+  color: red; font-weight: bold;
+}
